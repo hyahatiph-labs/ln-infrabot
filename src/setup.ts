@@ -14,7 +14,6 @@ import {
 
 export let lightning: any;
 export let router: any;
-let globalApiKey: string;
 
 // grpc configuration
 
@@ -31,14 +30,6 @@ const LOADER_OPTIONS = {
   enums: String,
   defaults: true,
   oneofs: true,
-};
-
-/**
- * Accessor for the api key
- * @returns - api key
- */
-export const getInternalApiKey = (): string => {
-  return globalApiKey;
 };
 
 /**
@@ -84,7 +75,7 @@ export default async function setup(): Promise<void> {
     log("no config file found", LogLevel.ERROR, true);
     // none found, write it
     await fsp
-      .mkdir(`${os.homedir()}/.gitpayd/`)
+      .mkdir(`${os.homedir()}/.ln-infrabot/`)
       .catch(() => log(`path for config already exists`, LogLevel.INFO, true));
     await fsp
       .writeFile(CONFIG_PATH, JSON.stringify(DEFAULT_CONFIG, null, INDENT))
@@ -94,7 +85,6 @@ export default async function setup(): Promise<void> {
   // set config as JSON
   const JSON_CONFIG: ConfigFile = JSON.parse(config.toString());
   // setup with values from config
-  globalApiKey = JSON_CONFIG.internalApiKey;
   await configureLndGrpc(JSON_CONFIG).catch(
     () => new Error("lnd grpc configuration failed")
   );

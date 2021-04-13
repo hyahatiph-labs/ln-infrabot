@@ -1,15 +1,10 @@
 import * as yargs from "yargs";
 import os from "os";
 
-// default values for NoOps
-export const API = "https://api.github.com/repos";
-export const MERGE_BODY: Record<string, unknown> = { commit_title: "merged by gitpayd" };
-
 // interface for the config file
 export interface ConfigFile {
   macaroonPath: string;
   lndHost: string;
-  internalApiKey: string;
   tlsPath: string;
   rpcProtoPath: string;
   routerProtoPath: string;
@@ -158,8 +153,7 @@ export const LOG_FILTERS: string[] | null = IS_MULTI_LOG_LEVEL
   : null;
 
 // some defaults for linux
-export const GITPAYD_ENV: string = process.env.GITPAYD_ENV;
-export const CONFIG_PATH = `${os.homedir()}/.gitpayd/config.json`;
+export const CONFIG_PATH = `${os.homedir()}/.ln-infrabot/config.json`;
 export const DEFAULT_MACAROON = `${os.homedir()}/.lnd/data/chain/bitcoin/mainnet/admin.macaroon`;
 export const DEFAULT_LND_HOST = "localhost:10009";
 export const DEFAULT_TLS_PATH = `${os.homedir()}/.lnd/tls.cert`;
@@ -169,7 +163,6 @@ export const INDENT = 2;
 export const DEFAULT_CONFIG: ConfigFile = {
   macaroonPath: DEFAULT_MACAROON,
   lndHost: DEFAULT_LND_HOST,
-  internalApiKey: "",
   tlsPath: DEFAULT_TLS_PATH,
   rpcProtoPath: DEFAULT_RPC_PROTO_PATH,
   routerProtoPath: DEFAULT_ROUTER_PROTO_PATH

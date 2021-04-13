@@ -16,12 +16,12 @@ import {
   DEV_PORT,
   SSL_SCHEMA,
   InfrabotMode,
-  GITPAYD_ENV,
+  INFRABOT_ENV,
 } from "./config";
-import setup, { getInternalApiKey } from "./setup";
 import prompt from "prompt";
 import { runNoOps } from "./noops";
 import { logStartup } from "./util";
+import setup from "./setup";
 
 let passphrase: string;
 let isConfigured: boolean;
@@ -29,45 +29,39 @@ let isConfigured: boolean;
 const APP = express();
 const START_TIME: number = new Date().getMilliseconds();
 
-// healthcheck for gitpayd
-APP.get("/gitpayd/health", (req, res) => {
-  log(`${req.ip} connected to gitpayd/health`, LogLevel.INFO, true);
-  res.status(InfrabotConfig.HTTP_OK).json({ msg: "gitpayd is UP" });
+// healthcheck for infrabot
+APP.get("/infrabot/health", (req, res) => {
+  log(`${req.ip} connected to infrabot/health`, LogLevel.INFO, true);
+  res.status(InfrabotConfig.HTTP_OK).json({ msg: "infrabot is UP" });
 });
 
-// NoOps for gitpayd
-APP.post("/gitpayd/noops", (req, res) => {
-  log(`${req.ip} connected to gitpayd/noops`, LogLevel.INFO, true);
-  const AUTH = req.headers.authorization;
-  const GITHUB_TOKEN = req.header("github-token");
-  if (AUTH !== getInternalApiKey()) {
-    log(`${req.ip} unauthorized access on gitpayd/noops`, LogLevel.ERROR, true);
-    res.status(InfrabotConfig.UNAUTHORIZED).json({ msg: `bad creds: ${AUTH}` });
-  } else {
-    runNoOps().catch(() => {
-      log(`An error occurred during NoOps`, LogLevel.ERROR, true);
-    });
-    res.status(InfrabotConfig.HTTP_OK).json({ msg: `NoOps Completed` });
-  }
+// NoOps for infrabot
+APP.post("/infrabot/noops", (req, res) => {
+  log(`${req.ip} connected to infrabot/noops`, LogLevel.INFO, true);
+  runNoOps().catch(() => {
+    log(`An error occurred during NoOps`, LogLevel.ERROR, true);
+  });
+  res.status(InfrabotConfig.HTTP_OK).json({ msg: `NoOps Completed` });
 });
 
 /**
  * Attempts to start the server in DEV mode
- * GITPAYD_ENV=DEV must be set
+ * INFRABOT_ENV=DEV must be set
  */
 const startHttp = (): void => {
   // set the dev server to run if environment variable is set
-  if (GITPAYD_ENV === InfrabotConfig.DEV) {
+  if (INFRABOT_ENV === InfrabotConfig.DEV) {
     // check for lnd node
     if (!isConfigured) {
+      log("whats going on!!!", LogLevel.DEBUG, false);
       setup().catch((e) => {
-        log(`${e}`, LogLevel.DEBUG, true)
-        log(`setup failed, check ${CONFIG_PATH}`, LogLevel.ERROR, true)
+        log(`${e}`, LogLevel.DEBUG, true);
+        log(`setup failed, check ${CONFIG_PATH}`, LogLevel.ERROR, true);
       });
     }
     const HTTP_SERVER = http.createServer(APP);
     HTTP_SERVER.listen(DEV_PORT, HOST);
-    log("warning: gitpayd development server is running", LogLevel.INFO, true);
+    log("warning: infrabot development server is running", LogLevel.INFO, true);
   }
   log(
     "https is not configured, check ssl certs location or passphrase",
@@ -95,33 +89,31 @@ const startHttps = (input: string): void => {
   setup().catch(() =>
     log(`setup failed, check ${CONFIG_PATH}`, LogLevel.ERROR, true)
   );
-  isConfigured = true;
 };
-
 
 /**
  * Drive server initialization with SSL passphrase
  */
 async function initialize(): Promise<void> {
-  // get ssl passphrase on startup
-  prompt.start();
-  let { sslpassphrase } = await prompt.get(SSL_SCHEMA);
-  passphrase = sslpassphrase.toString();
-  // start the gitpayd server
-  try {
+  // start the infrabot server
+  if (!INFRABOT_ENV) {
+    // get ssl passphrase on startup
+    prompt.start();
+    let { sslpassphrase }: prompt.Properties = await prompt.get(SSL_SCHEMA);
+    passphrase = sslpassphrase.toString();
     startHttps(passphrase);
     // clear ssl passphrase
     passphrase = null;
     sslpassphrase = null;
-    await logStartup(PORT, InfrabotMode.SECURE, START_TIME);
-  } catch {
+    logStartup(PORT, InfrabotMode.SECURE, START_TIME);
+    isConfigured = true;
+  } else {
     startHttp();
-    if(GITPAYD_ENV) {
-      await logStartup(DEV_PORT, InfrabotMode.UNSECURE, START_TIME);
-    }
+    logStartup(DEV_PORT, InfrabotMode.UNSECURE, START_TIME);
   }
 }
 
-initialize().catch(() =>
-  log("gitpayd failed to initialize", LogLevel.ERROR, false)
-);
+initialize().catch((e) => {
+  log(`${e}`, LogLevel.DEBUG, false);
+  log("infrabot failed to initialize", LogLevel.ERROR, false);
+});
