@@ -187,7 +187,8 @@ export interface Error {
  * Interface for node info
  */
 export interface NodeInfo {
-  version: string
+  version: string,
+  identity_pubkey: string
 }
 
 /**
@@ -195,8 +196,9 @@ export interface NodeInfo {
  */
 export interface QuoteResponse {
   next_avail: number,
+  pub_key: string,
   rent: number | string,
-  supportedApps: string,
+  supported_apps: string,
   ttl: number | string,
-  version: string,
+  version: string
 }

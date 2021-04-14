@@ -14,7 +14,6 @@ import {
 
 export let lightning: any;
 export let router: any;
-export let lndVersion: string;
 
 // grpc configuration
 
@@ -54,13 +53,14 @@ export const getRouter = (): any => {
  * @param {string} host
  * @param {number} startTime
  */
-async function testLnd(ver: string): Promise<void> {
+async function testLnd(): Promise<void> {
+  let localVer: string;
   lightning.getInfo({}, (e: Error, r: NodeInfo) => {
     if (e) {
       log(`${e}`, LogLevel.ERROR, true);
     }
-    ver = r.version.split("commit=")[0]
-    log(`found lnd ${ver}`, LogLevel.DEBUG, true);
+    localVer = r.version.split("commit=")[0];
+    log(`found lnd ${localVer}`, LogLevel.DEBUG, true);
   });
 }
 
@@ -142,7 +142,7 @@ async function configureLndGrpc(config: ConfigFile) {
   const lnrouter: any = LN_ROUTER_DESCRIPTOR.routerrpc;
   lightning = new lnrpc.Lightning(LND_HOST, CREDENTIALS);
   router = new lnrouter.Router(LND_HOST, CREDENTIALS);
-  await testLnd(lndVersion).catch((e) => {
+  await testLnd().catch((e) => {
     // exit if lnd could not connect
     throw new Error(`${e}`);
   });
