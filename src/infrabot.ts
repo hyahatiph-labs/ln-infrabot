@@ -19,7 +19,7 @@ import {
   INFRABOT_ENV,
 } from "./config";
 import prompt from "prompt";
-import { runNoOps } from "./noops";
+import { fetchQuote, runNoOps } from "./noops";
 import { logStartup } from "./util";
 import setup from "./setup";
 
@@ -27,12 +27,23 @@ let passphrase: string;
 let isConfigured: boolean;
 
 const APP = express();
-const START_TIME: number = new Date().getMilliseconds();
+const START_TIME: number = Date.now();
 
 // healthcheck for infrabot
 APP.get("/infrabot/health", (req, res) => {
   log(`${req.ip} connected to infrabot/health`, LogLevel.INFO, true);
   res.status(InfrabotConfig.HTTP_OK).json({ msg: "infrabot is UP" });
+});
+
+// quote for infrabot
+APP.get("/infrabot/quote", (req, res) => {
+  log(`${req.ip} connected to infrabot/quote`, LogLevel.INFO, true);
+  fetchQuote()
+  .then(quote => res.status(InfrabotConfig.HTTP_OK).json({ quote }))
+  .catch(e => {
+    log(`${e}`, LogLevel.DEBUG, false);
+    log(`An error occurred during NoOps`, LogLevel.ERROR, true);
+  });
 });
 
 // NoOps for infrabot
@@ -53,7 +64,6 @@ const startHttp = (): void => {
   if (INFRABOT_ENV === InfrabotConfig.DEV) {
     // check for lnd node
     if (!isConfigured) {
-      log("whats going on!!!", LogLevel.DEBUG, false);
       setup().catch((e) => {
         log(`${e}`, LogLevel.DEBUG, true);
         log(`setup failed, check ${CONFIG_PATH}`, LogLevel.ERROR, true);

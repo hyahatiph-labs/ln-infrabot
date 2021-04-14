@@ -14,11 +14,12 @@ import {
 
 export let lightning: any;
 export let router: any;
+export let lndVersion: string;
 
 // grpc configuration
 
 // Due to updated ECDSA generated tls.cert we need to let gprc know that
-// we need to use that cipher suite otherwise there will be a handhsake
+// we need to use that cipher suite otherwise there will be a handshake
 // error when we communicate with the lnd rpc server.
 process.env.GRPC_SSL_CIPHER_SUITES = "HIGH+ECDSA";
 
@@ -53,12 +54,13 @@ export const getRouter = (): any => {
  * @param {string} host
  * @param {number} startTime
  */
-async function testLnd(): Promise<void> {
+async function testLnd(ver: string): Promise<void> {
   lightning.getInfo({}, (e: Error, r: NodeInfo) => {
     if (e) {
       log(`${e}`, LogLevel.ERROR, true);
     }
-    log(`${r.version.split("commit=")[0]}`, LogLevel.DEBUG, true);
+    ver = r.version.split("commit=")[0]
+    log(`found lnd ${ver}`, LogLevel.DEBUG, true);
   });
 }
 
@@ -140,7 +142,7 @@ async function configureLndGrpc(config: ConfigFile) {
   const lnrouter: any = LN_ROUTER_DESCRIPTOR.routerrpc;
   lightning = new lnrpc.Lightning(LND_HOST, CREDENTIALS);
   router = new lnrouter.Router(LND_HOST, CREDENTIALS);
-  await testLnd().catch((e) => {
+  await testLnd(lndVersion).catch((e) => {
     // exit if lnd could not connect
     throw new Error(`${e}`);
   });

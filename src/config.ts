@@ -22,8 +22,7 @@ export enum InfrabotConfig {
   DEFAULT_TTL = 60,
   HTTP_OK = 200,
   UNAUTHORIZED = 403,
-  SERVER_FAILURE = 500,
-  PAYMENT_TIMEOUT = 9
+  SERVER_FAILURE = 500
 }
 
 /**
@@ -34,7 +33,7 @@ export enum InfrabotConfig {
     sslpassphrase: {
       message:
         "Enter SSL passphrase or press Enter for DEV mode " +
-        "\n\tHint: for DEV mode export GITPAYD_ENV=DEV\n",
+        "\n\tHint: for DEV mode export INFRABOT_ENV=DEV\n",
       hidden: true,
     },
   },
@@ -192,30 +191,12 @@ export interface NodeInfo {
 }
 
 /**
- * Interface for amount
+ * Interface for infrabot quote response
  */
-interface Amount {
-  sat: number;
-  msat: number;
-}
-
-/**
- * Interface for balance
- */
-export interface ChannelBalance {
-  local_balance: Amount;
-}
-
-/**
- * Interface for decoded invoice
- */
- export interface PaymentRequest {
-  num_satoshis: number
-}
-
-/**
- * Interface for sending payment
- */
- export interface SendPayment {
-  payment_preimage: string
+export interface QuoteResponse {
+  next_avail: number,
+  rent: number | string,
+  supportedApps: string,
+  ttl: number | string,
+  version: string,
 }
