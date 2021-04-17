@@ -1,5 +1,6 @@
 import * as yargs from "yargs";
 import os from "os";
+import { CpuInfo } from "node:os";
 
 // interface for the config file
 export interface ConfigFile {
@@ -7,7 +8,7 @@ export interface ConfigFile {
   lndHost: string;
   tlsPath: string;
   rpcProtoPath: string;
-  routerProtoPath: string;
+  invoiceProtoPath: string;
 }
 
 /**
@@ -18,17 +19,21 @@ export enum InfrabotConfig {
   DEFAULT_DEV_PORT = 3637,
   DEV = "DEV",
   DEFAULT_HOST = "127.0.0.1",
-  DEFAULT_RENT = 100,
-  DEFAULT_TTL = 60,
+  // sats per hour
+  DEFAULT_RENT = 60,
+  // min. run time in minutes
+  DEFAULT_TTL = 10,
+  DEFAULT_SUPPORTED_APPS = "node.js",
+  DEFAULT_DISK = 1,
   HTTP_OK = 200,
   UNAUTHORIZED = 403,
-  SERVER_FAILURE = 500
+  SERVER_FAILURE = 500,
 }
 
 /**
  * Schema for SSL input
  */
- export const SSL_SCHEMA: any = {
+export const SSL_SCHEMA: any = {
   properties: {
     sslpassphrase: {
       message:
@@ -97,6 +102,18 @@ const ARGS = yargs
     description: "recurring payments",
     demand: false,
   })
+  .option("support-apps", {
+    string: true,
+    alias: "s",
+    description: "comma separated list of supported apps",
+    demand: false,
+  })
+  .option("disk", {
+    number: true,
+    alias: "d",
+    description: "disk size (GB) restriction",
+    demand: false,
+  })
   .option("log-level", {
     string: true,
     alias: "ll",
@@ -109,34 +126,45 @@ export const KEY_PATH: string = ARGS["key-path"];
 export const CERT_PATH: string = ARGS["cert-path"];
 export const CA_PATH: string = ARGS["ca-path"];
 export const ROOT_PATH: string = ARGS["root-path"];
-export const PORT: number =
-  !ARGS.port ? InfrabotConfig.DEFAULT_PORT : ARGS.port;
-export const HOST: string =
-  !ARGS.host ? InfrabotConfig.DEFAULT_HOST : ARGS.host;
+export const PORT: number = !ARGS.port
+  ? InfrabotConfig.DEFAULT_PORT
+  : ARGS.port;
+export const HOST: string = !ARGS.host
+  ? InfrabotConfig.DEFAULT_HOST
+  : ARGS.host;
 export const INFRABOT_ENV: string = process.env.INFRABOT_ENV;
-export const DEV_PORT: number =
-  !ARGS["dev-port"]
-    ? InfrabotConfig.DEFAULT_DEV_PORT
-    : ARGS["dev-port"];
+export const DEV_PORT: number = !ARGS["dev-port"]
+  ? InfrabotConfig.DEFAULT_DEV_PORT
+  : ARGS["dev-port"];
 
 // payment settings
 const CUSTOM_RENT: string = ARGS["rent"];
 const CUSTOM_TTL: string = ARGS["ttl"];
-export const RENT: number | string =
-  !CUSTOM_RENT
-    ? InfrabotConfig.DEFAULT_RENT
-    : parseInt(CUSTOM_RENT, 10);
-export const TTL: number =
-  !CUSTOM_TTL
-    ? InfrabotConfig.DEFAULT_TTL
-    : parseInt(CUSTOM_TTL, 10);
+const CUSTOM_APPS: string = ARGS["support-apps"];
+const CUSTOM_DISK: number = ARGS["disk"];
+export const RENT: number | string = !CUSTOM_RENT
+  ? InfrabotConfig.DEFAULT_RENT
+  : parseInt(CUSTOM_RENT, 10);
+export const TTL: number = !CUSTOM_TTL
+  ? InfrabotConfig.DEFAULT_TTL
+  : parseInt(CUSTOM_TTL, 10);
+const APPS: string[] = [];
+if (!CUSTOM_APPS) {
+  APPS.push(InfrabotConfig.DEFAULT_SUPPORTED_APPS);
+}
+// set supported apps
+export const SUPPORTED_APPS: string[] = APPS.length !== 0
+  ? APPS
+  : CUSTOM_APPS.split(",");
+// set disk size restriction
+export const DISK: number = !CUSTOM_DISK
+  ? InfrabotConfig.DEFAULT_DISK
+  : CUSTOM_DISK;
 
 // global log level
 const LOG_LEVEL_ARG: string = ARGS["log-level"];
 const IS_MULTI_LOG_LEVEL: boolean =
-  LOG_LEVEL_ARG &&
-  LOG_LEVEL_ARG.length > 0 &&
-  LOG_LEVEL_ARG.indexOf(",") > 0;
+  LOG_LEVEL_ARG && LOG_LEVEL_ARG.length > 0 && LOG_LEVEL_ARG.indexOf(",") > 0;
 const singleLogLevel: string[] = [];
 if (!IS_MULTI_LOG_LEVEL && LOG_LEVEL_ARG) {
   singleLogLevel.push(LOG_LEVEL_ARG);
@@ -157,48 +185,50 @@ export const DEFAULT_MACAROON = `${os.homedir()}/.lnd/data/chain/bitcoin/mainnet
 export const DEFAULT_LND_HOST = "localhost:10009";
 export const DEFAULT_TLS_PATH = `${os.homedir()}/.lnd/tls.cert`;
 export const DEFAULT_RPC_PROTO_PATH = `${os.homedir()}/lnd/lnrpc/rpc.proto`;
-export const DEFAULT_ROUTER_PROTO_PATH = `${os.homedir()}/lnd/lnrpc/routerrpc/router.proto`;
+export const DEFAULT_INVOICES_PROTO_PATH = `${os.homedir()}/lnd/lnrpc/invoicesrpc/invoices.proto`;
 export const INDENT = 2;
 export const DEFAULT_CONFIG: ConfigFile = {
   macaroonPath: DEFAULT_MACAROON,
   lndHost: DEFAULT_LND_HOST,
   tlsPath: DEFAULT_TLS_PATH,
   rpcProtoPath: DEFAULT_RPC_PROTO_PATH,
-  routerProtoPath: DEFAULT_ROUTER_PROTO_PATH
+  invoiceProtoPath: DEFAULT_INVOICES_PROTO_PATH,
 };
 
 /**
  * Used in conjunction with api requests in order to reduce
  * cognitive complexity
  */
- export enum InfrabotMode {
+export enum InfrabotMode {
   SECURE = "secure",
-  UNSECURE = "un-secure"
+  UNSECURE = "un-secure",
 }
 
 /**
  * Interface for grpc errors
  */
 export interface Error {
-  message: string
+  message: string;
 }
 
 /**
  * Interface for node info
  */
 export interface NodeInfo {
-  version: string,
-  identity_pubkey: string
+  version: string;
+  identity_pubkey: string;
 }
 
 /**
  * Interface for infrabot quote response
  */
 export interface QuoteResponse {
-  next_avail: number,
-  pub_key: string,
-  rent: number | string,
-  supported_apps: string,
-  ttl: number | string,
-  version: string
+  cpus: CpuInfo[];
+  mem: number;
+  disk: number;
+  next_avail: number;
+  rent: number | string;
+  supported_apps: string[];
+  ttl: number | string;
+  version: string;
 }
