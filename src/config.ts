@@ -11,6 +11,10 @@ export interface ConfigFile {
   invoiceProtoPath: string;
 }
 
+// default initial info for first quote
+export const DEFAULT_PAYMENT = 10;
+export const DEFAULT_MEMO = "infrabot invoice"
+
 /**
  * Global settings for the server
  */
@@ -226,9 +230,35 @@ export interface QuoteResponse {
   cpus: CpuInfo[];
   mem: number;
   disk: number;
+  invoice: string;
   next_avail: number;
   rent: number | string;
   supported_apps: string[];
   ttl: number | string;
   version: string;
+}
+
+export interface InfrabotRequest {
+  app: string;
+  id: string;
+  isNew: boolean;
+  repo: string;
+  run: string;
+  preimage: string;
+  ttl: number;
+}
+
+export interface HoldInvoiceRequest {
+  hash: Buffer;
+  expiry: number;
+  memo: string;
+  value: number;
+}
+
+export interface HoldInvoiceResponse {
+  payment_request: string;
+}
+
+export interface SettleInvoiceRequest {
+  preimage: Buffer;
 }

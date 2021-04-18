@@ -1,7 +1,20 @@
 
 import log, { LogLevel } from "./logging";
 import os from "os";
-import { InfrabotMode } from "./config";
+import { InfrabotMode, SUPPORTED_APPS } from "./config";
+
+/**
+ * Verify if app type is in the list curated
+ * by the operator
+ * @param app -incoming app type
+ * @returns boolean
+ */
+export const isSupportedApp = (app: string): boolean => {
+  const APP_ARRAY: string[] = SUPPORTED_APPS;
+  APP_ARRAY.push(app);
+  const APP_SET: Set<string> = new Set(APP_ARRAY);
+  return APP_SET.values.length === SUPPORTED_APPS.length;
+}
 
 /**
  * Log the port of server mode

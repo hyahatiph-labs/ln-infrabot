@@ -49,7 +49,7 @@ APP.get("/infrabot/quote", (req, res) => {
 // NoOps for infrabot
 APP.post("/infrabot/noops", (req, res) => {
   log(`${req.ip} connected to infrabot/noops`, LogLevel.INFO, true);
-  runNoOps(req).catch(() => {
+  runNoOps(req.body).catch(() => {
     log(`An error occurred during NoOps`, LogLevel.ERROR, true);
   });
   res.status(InfrabotConfig.HTTP_OK).json({ msg: `NoOps Completed` });
