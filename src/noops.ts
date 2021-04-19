@@ -18,12 +18,16 @@ import { invoicerpc, lightning } from "./setup";
 import os from "os";
 import { spawn } from "child_process";
 import { randomBytes } from "crypto";
-import { isSupportedApp } from "./util";
+import { isSupportedApp, janitor } from "./util";
 
+/**
+ * Used to determine bot availability.
+ * If not in the future a new app can be spun
+ */
 let nextAvail = 0;
 
 /**
- * Process the request from the user and 
+ * Process the request from the user and
  * execute NoOps. If there is already an app
  * running the only functionality is extending
  * the ttl. The next availability is reset once
@@ -34,28 +38,27 @@ let nextAvail = 0;
 export async function runNoOps(request: InfrabotRequest): Promise<void> {
   // check if app is supported and no apps running
   if (isSupportedApp(request.app)) {
-    // install and run app, next avail with ttl
-    if (request.isNew && nextAvail < Date.now()) {
-      const CHILD_REPO = spawn("git clone", [`${request.repo}`]);
-      CHILD_REPO.stdout.pipe(process.stdout);
-      const CHILD_RUN = spawn(`${request.run}`);
-      CHILD_RUN.stdout.pipe(process.stdout);
-    }
     // settle hodl invoice if no errors
     const SETTLE_REQUEST: SettleInvoiceRequest = {
       preimage: Buffer.from(request.preimage),
     };
-    invoicerpc.settleInvoice(
-      SETTLE_REQUEST,
-      (e: Error, r: any) => {
-        if (!e) {
-          log(`Settled: ${request.preimage}`, LogLevel.INFO, true);
-          nextAvail = Date.now() + request.ttl * 60000;
-        } else {
-          log(`${e}`, LogLevel.ERROR, true);
+    invoicerpc.settleInvoice(SETTLE_REQUEST, (e: Error, r: any) => {
+      if (!e) {
+        log(`Settled: ${request.preimage}`, LogLevel.INFO, true);
+        nextAvail = Date.now() + request.ttl * 60000;
+        // install and run app, next avail with ttl
+        if (request.isNew && nextAvail < Date.now()) {
+          const CHILD_REPO = spawn("git clone", [`${request.repo}`]);
+          CHILD_REPO.stdout.pipe(process.stdout);
+          const CHILD_RUN = spawn(`${request.run}`);
+          CHILD_RUN.stdout.pipe(process.stdout);
+          janitor(nextAvail, CHILD_RUN);
         }
+        log(`next avail: ${nextAvail}`, LogLevel.DEBUG, false);
+      } else {
+        log(`${e}`, LogLevel.ERROR, true);
       }
-    );
+    });
   }
 }
 

@@ -240,7 +240,6 @@ export interface QuoteResponse {
 
 export interface InfrabotRequest {
   app: string;
-  id: string;
   isNew: boolean;
   repo: string;
   run: string;
