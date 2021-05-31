@@ -1,6 +1,6 @@
 # ln-infrabot
 <p>infrabot accepts streaming payments to deploy and maintain infrastructure so you don't have to
-<p>become part of a global decentralized IaaS network by leveraging micropayments and existing resources
+<p>become part of a global decentralized IaaS network by leveraging micro-payments and existing resources
 
 
 
@@ -16,7 +16,7 @@
 ## Project Layout
 
 ```bash
-gitpayd/
+ln-infrabot/
 ├── src                # Directory of source code
    ├── config.ts         # Configuration properties
    ├── infrabot.ts        # Entry point for the app
@@ -30,22 +30,17 @@ gitpayd/
 
 ## Building
 
-1. `cd gitpayd/` and run `npm i` to install modules
+1. `cd ln-infrabot/` and run `npm i` to install modules
 2. Run `npm run clean && npm run build`
 3. Output is in `/dist`
 
 ## Development
 
-1. Set environment variable `export GITPAYD_ENV=DEV` for development if needed
+1. Set environment variable `export INFRABOT_ENV=DEV` for development if needed
 2. Run `node dist/src/gitpayd.js` to run server *--help for help 
-3. Test health check at `http://hostname:7778/gitpayd/health` (*port 7777 is default secure port)
-4. Verify configuration files at `~/.gitpayd/config.json`
+3. Test health check at `http://hostname:3637/gitpayd/health` (*port 3636 is default secure port)
+4. Verify configuration files at `~/.ln-infrabot/config.json`
 <br/>
-
-```bash
-
-
-```
 
 
 ## Notes
@@ -63,31 +58,12 @@ gitpayd/
 }
 ```
 
-<b>Delimiters</b>
-<ul>
-<li> Issues should have a line <b>Bounty: amt</b> - where amt is the amount in satoshis
-<li> Pull requests should have a line <b>LN: LNxxx</b> - where LNxxx is the invoice 
-<li> as well as, <b>Closes #n</b> - where n is the issue number the pull request will close
-</ul>
-
 ## Installation
 
-1. Run `npm i -g gitpayd`
-2. Execute `gitpayd` should start up the server
-3. Execute from workflow as curl or create your own action thingy!
-
-```bash
-# gitpayd-cli required arguments
-gitpayd --cap=/home/USER/path-to-ca-cert/ca.crt --kp=/home/USER/path-to-private-key/PRIVATEKEY.key --cep=/home/USER/path-server-cert/server.crt --rp=/home/USER/path-to-root-cert/root.crt --o=owner -r=repo
-# optional arguments -p=PORT, -host=IP_ADDRESS --dvp=DEV_PORT --ll=DEBUG,INFO,ERROR (default is INFO,ERROR)
-```
+1. Run `npm i -g ln-infrabot`
+2. Execute `ln-infrabot` should start up the server
+3. [ WIP ] Integration with gitpayd!
 
 ## Releasing
 
 TODO: Automated release management via `npm publish` and workflows
-
-## Testing
-
-`npm test`
-<br/>
-more tests are encouraged
