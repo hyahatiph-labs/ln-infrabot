@@ -1,7 +1,7 @@
 import log, { LogLevel } from "./logging";
 import os from "os";
 import { InfrabotMode, SUPPORTED_APPS, TTL } from "./config";
-import { ChildProcessWithoutNullStreams } from "node:child_process";
+import { ChildProcessWithoutNullStreams } from "child_process";
 
 /**
  * This janitor runs while an app is active

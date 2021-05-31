@@ -57,6 +57,11 @@ export async function runNoOps(request: InfrabotRequest): Promise<void> {
         log(`next avail: ${nextAvail}`, LogLevel.DEBUG, false);
       } else {
         log(`${e}`, LogLevel.ERROR, true);
+        invoicerpc.cancelInvoice(SETTLE_REQUEST, (e: Error, r: any) => {
+          if (e) {
+            log(`${e}`, LogLevel.ERROR, true);
+          }
+        });
       }
     });
   }
@@ -65,7 +70,7 @@ export async function runNoOps(request: InfrabotRequest): Promise<void> {
 /**
  * Return quote for the infrabot
  * If infrabot is free it will assist
- * @param res Response
+ * @param res Response manipulation
  */
 export async function fetchQuote(res: any): Promise<void> {
   if (nextAvail === 0) {
@@ -92,13 +97,15 @@ export async function fetchQuote(res: any): Promise<void> {
       };
       if (e) {
         log(`${e}`, LogLevel.ERROR, true);
-      }
-      if (ie) {
+        return res.status(InfrabotConfig.SERVER_FAILURE);
+      } else if (ie) {
         log(`${ie}`, LogLevel.ERROR, true);
+        return res.status(InfrabotConfig.SERVER_FAILURE);
+      } else {
+        quote.version = r.version.split("commit=")[0].trim();
+        quote.invoice = ir.payment_request;
+        return res.status(InfrabotConfig.HTTP_OK).json({ quote });
       }
-      quote.version = r.version.split("commit=")[0].trim();
-      quote.invoice = ir.payment_request;
-      return res.status(InfrabotConfig.HTTP_OK).json({ quote });
     });
   });
 }

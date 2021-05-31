@@ -191,6 +191,10 @@ export const DEFAULT_TLS_PATH = `${os.homedir()}/.lnd/tls.cert`;
 export const DEFAULT_RPC_PROTO_PATH = `${os.homedir()}/lnd/lnrpc/rpc.proto`;
 export const DEFAULT_INVOICES_PROTO_PATH = `${os.homedir()}/lnd/lnrpc/invoicesrpc/invoices.proto`;
 export const INDENT = 2;
+
+/**
+ * The interface for the configuration file
+ */
 export const DEFAULT_CONFIG: ConfigFile = {
   macaroonPath: DEFAULT_MACAROON,
   lndHost: DEFAULT_LND_HOST,
@@ -238,6 +242,9 @@ export interface QuoteResponse {
   version: string;
 }
 
+/**
+ * The interface for the infrabot request
+ */
 export interface InfrabotRequest {
   app: string;
   isNew: boolean;
@@ -247,6 +254,9 @@ export interface InfrabotRequest {
   ttl: number;
 }
 
+/**
+ * The interface for the hold invoice request
+ */
 export interface HoldInvoiceRequest {
   hash: Buffer;
   expiry: number;
@@ -254,10 +264,16 @@ export interface HoldInvoiceRequest {
   value: number;
 }
 
+/**
+ * The interface for the hold invoice response
+ */
 export interface HoldInvoiceResponse {
   payment_request: string;
 }
 
+/**
+ * The interface for settling invoice
+ */
 export interface SettleInvoiceRequest {
   preimage: Buffer;
 }

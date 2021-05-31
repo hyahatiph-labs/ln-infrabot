@@ -29,7 +29,7 @@ let isConfigured: boolean;
 const APP = express();
 const START_TIME: number = new Date().getMilliseconds();
 
-// healthcheck for infrabot
+// health check for infrabot
 APP.get("/infrabot/health", (req, res) => {
   log(`${req.ip} connected to infrabot/health`, LogLevel.INFO, true);
   res.status(InfrabotConfig.HTTP_OK).json({ msg: "infrabot is UP" });
