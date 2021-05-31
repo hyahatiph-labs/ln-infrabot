@@ -1,6 +1,5 @@
 import * as yargs from "yargs";
-import os from "os";
-import { CpuInfo } from "node:os";
+import os, { CpuInfo } from "os";
 
 // interface for the config file
 export interface ConfigFile {
