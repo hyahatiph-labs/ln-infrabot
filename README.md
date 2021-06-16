@@ -60,10 +60,6 @@ ln-infrabot/
 
 ## Installation
 
-1. Run `npm i -g ln-infrabot`
-2. Execute `ln-infrabot` should start up the server
-3. [ WIP ] Integration with gitpayd!
-
 ## Releasing
 
 TODO: Automated release management via `npm publish` and workflows
