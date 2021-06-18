@@ -32,6 +32,7 @@ Started listening on penguin
 
 ```bash
 ln-infrabot/
+api.http               # used with VSCode [humao.rest-client] for local testing
 ├── src                # Directory of source code
    ├── config.ts         # Configuration properties
    ├── infrabot.ts        # Entry point for the app
