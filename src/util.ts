@@ -21,7 +21,7 @@ export const janitor = (
       process.kill();
       clearInterval(INTERVAL);
     }
-  }, TTL * 6000);
+  }, TTL * 60000);
 };
 
 /**
@@ -31,10 +31,10 @@ export const janitor = (
  * @returns boolean
  */
 export const isSupportedApp = (app: string): boolean => {
-  const APP_ARRAY: string[] = SUPPORTED_APPS;
+  const APP_ARRAY: string[] = [...SUPPORTED_APPS];
   APP_ARRAY.push(app);
   const APP_SET: Set<string> = new Set(APP_ARRAY);
-  return APP_SET.values.length === SUPPORTED_APPS.length;
+  return APP_SET.size !== APP_ARRAY.length;
 };
 
 /**

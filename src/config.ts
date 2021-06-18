@@ -184,7 +184,7 @@ export const LOG_FILTERS: string[] | null = IS_MULTI_LOG_LEVEL
 
 // some defaults for linux
 export const CONFIG_PATH = `${os.homedir()}/.ln-infrabot/config.json`;
-export const DEFAULT_MACAROON = `${os.homedir()}/.lnd/data/chain/bitcoin/mainnet/admin.macaroon`;
+export const DEFAULT_MACAROON = `${os.homedir()}/.lnd/data/chain/bitcoin/regtest/admin.macaroon`;
 export const DEFAULT_LND_HOST = "localhost:10009";
 export const DEFAULT_TLS_PATH = `${os.homedir()}/.lnd/tls.cert`;
 export const DEFAULT_RPC_PROTO_PATH = `${os.homedir()}/lnd/lnrpc/rpc.proto`;
@@ -249,30 +249,36 @@ export interface InfrabotRequest {
   isNew: boolean;
   repo: string;
   run: string;
-  preimage: string;
+  payment_request: string;
   ttl: number;
 }
 
 /**
- * The interface for the hold invoice request
+ * The interface for the invoice request
  */
-export interface HoldInvoiceRequest {
-  hash: Buffer;
-  expiry: number;
+ export interface AddInvoiceRequest {
   memo: string;
   value: number;
 }
 
 /**
- * The interface for the hold invoice response
+ * The interface for the invoice response
  */
-export interface HoldInvoiceResponse {
+ export interface AddInvoiceResponse {
   payment_request: string;
 }
 
 /**
- * The interface for settling invoice
+ * The interface for the invoice
  */
-export interface SettleInvoiceRequest {
-  preimage: Buffer;
+export interface Invoice {
+  payment_request: string;
+  settled: boolean;
+}
+
+/**
+ * The interface for the list invoices response
+ */
+export interface ListInvoiceResponse {
+  invoices: Invoice[];
 }

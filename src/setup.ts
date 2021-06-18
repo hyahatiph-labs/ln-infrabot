@@ -13,7 +13,6 @@ import {
 } from "./config";
 
 export let lightning: any;
-export let invoicerpc: any;
 
 // grpc configuration
 
@@ -40,13 +39,6 @@ export const getLrpc = (): any => {
   return lightning;
 };
 
-/**
- * Accessor for the grpc router
- * @returns - grpc router implementation
- */
-export const getInvoiceRpc = (): any => {
-  return invoicerpc;
-};
 
 /**
  * Hit the LND Node and see if it returns data
@@ -98,16 +90,10 @@ export default async function setup(): Promise<void> {
  */
 async function configureLndGrpc(config: ConfigFile) {
   const RPC_PROTO_PATH: string = config.rpcProtoPath;
-  const INVOICE_PROTO_PATH: string = config.invoiceProtoPath;
   const LND_HOST: string = config.lndHost;
   log(`rpc proto path is ${RPC_PROTO_PATH}`, LogLevel.DEBUG, false);
-  log(`invoice proto path is ${INVOICE_PROTO_PATH}`, LogLevel.DEBUG, false);
   const RPC_PACKAGE_DEF: protoLoader.PackageDefinition = protoLoader.loadSync(
     RPC_PROTO_PATH,
-    LOADER_OPTIONS
-  );
-  const INVOICE_PACKAGE_DEFINITION = protoLoader.loadSync(
-    [RPC_PROTO_PATH, INVOICE_PROTO_PATH],
     LOADER_OPTIONS
   );
   const LND_CERT: Buffer = await fsp.readFile(config.tlsPath);
@@ -134,14 +120,10 @@ async function configureLndGrpc(config: ConfigFile) {
   const LNRPC_DESCRIPTOR: grpc.GrpcObject = grpc.loadPackageDefinition(
     RPC_PACKAGE_DEF
   );
-  const LN_INVOICE_DESCRIPTOR: grpc.GrpcObject = grpc.loadPackageDefinition(
-    INVOICE_PACKAGE_DEFINITION
-  );
   // TODO: find out why any is needed here...
   const lnrpc: any = LNRPC_DESCRIPTOR.lnrpc;
-  const lninvoice: any = LN_INVOICE_DESCRIPTOR.invoicesrpc;
+
   lightning = new lnrpc.Lightning(LND_HOST, CREDENTIALS);
-  invoicerpc = new lninvoice.Invoices(LND_HOST, CREDENTIALS);
   await testLnd().catch((e) => {
     // exit if lnd could not connect
     throw new Error(`${e}`);

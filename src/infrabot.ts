@@ -27,6 +27,7 @@ let passphrase: string;
 let isConfigured: boolean;
 
 const APP = express();
+APP.use(express.json());
 const START_TIME: number = new Date().getMilliseconds();
 
 // health check for infrabot
@@ -49,8 +50,8 @@ APP.get("/infrabot/quote", (req, res) => {
 // NoOps for infrabot
 APP.post("/infrabot/noops", (req, res) => {
   log(`${req.ip} connected to infrabot/noops`, LogLevel.INFO, true);
-  runNoOps(req.body).catch(() => {
-    log(`An error occurred during NoOps`, LogLevel.ERROR, true);
+  runNoOps(req.body).catch(e => {
+    log(`${e}`, LogLevel.ERROR, true);
   });
   res.status(InfrabotConfig.HTTP_OK).json({ msg: `NoOps Completed` });
 });

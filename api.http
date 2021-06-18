@@ -1,0 +1,18 @@
+GET http://localhost:3637/infrabot/health
+
+###
+GET http://localhost:3637/infrabot/quote
+
+###
+
+POST http://localhost:3637/infrabot/noops
+Content-Type: application/json
+
+{
+  "app": "node.js",
+  "isNew": true,
+  "repo": "https://github.com/reemuru/headerParse.git",
+  "run": "cd headerParse && npm i && node index.js",
+  "payment_request": "lnbcrt100n1psvesvzpp5l0kz9exaj7nh6h3kzl5tn84v2d3wc6m8m75x5l8wxq3zqkls636sdq6d9hxvunpvfhhggrfdemx76trv5cqzpgsp5g8ctm0ehhjx4ulqy3q6sqc9q996g22urn82nqxd5r2ytr2mjch4s9qyyssqqn37afuch9lqffj9th2f6laj7r6eg2qj35y0l7qejk48jn4ecfvzytt2nxeh90gqsf5glvenexmgqn264j44u2jjwpeu4r7yeypkzdqpvu8ync",
+  "ttl": "20"
+}

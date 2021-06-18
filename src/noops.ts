@@ -2,8 +2,6 @@ import {
   DEFAULT_PAYMENT,
   DEFAULT_MEMO,
   DISK,
-  HoldInvoiceRequest,
-  HoldInvoiceResponse,
   InfrabotConfig,
   InfrabotRequest,
   NodeInfo,
@@ -11,13 +9,15 @@ import {
   RENT,
   SUPPORTED_APPS,
   TTL,
-  SettleInvoiceRequest,
+  AddInvoiceRequest,
+  AddInvoiceResponse,
+  ListInvoiceResponse,
+  Invoice,
 } from "./config";
 import log, { LogLevel } from "./logging";
-import { invoicerpc, lightning } from "./setup";
+import { lightning } from "./setup";
 import os from "os";
 import { spawn } from "child_process";
-import { randomBytes } from "crypto";
 import { isSupportedApp, janitor } from "./util";
 
 /**
@@ -25,6 +25,25 @@ import { isSupportedApp, janitor } from "./util";
  * If not in the future a new app can be spun
  */
 let nextAvail = 0;
+
+/**
+ * Async function for cloning the source code
+ * @param repo repo from infrabot request
+ */
+const goRepo = async (repo: string) => {
+  const CHILD_REPO = spawn("git", ["clone", `${repo}`]);
+  CHILD_REPO.stdout.pipe(process.stdout);
+};
+
+/**
+ * Async function for compiling and running the source code
+ * @param repo repo from infrabot request
+ */
+const runInfrabot = async (commands: string) => {
+  const CHILD_RUN = spawn(`${commands}`);
+  CHILD_RUN.stdout.pipe(process.stdout);
+  janitor(nextAvail, CHILD_RUN);
+};
 
 /**
  * Process the request from the user and
@@ -35,77 +54,77 @@ let nextAvail = 0;
  * is over.
  * @param request - request from user
  */
-export async function runNoOps(request: InfrabotRequest): Promise<void> {
+export const runNoOps = async (request: InfrabotRequest): Promise<void> => {
   // check if app is supported and no apps running
+  log(`Request: ${JSON.stringify(request)}`, LogLevel.DEBUG, false);
   if (isSupportedApp(request.app)) {
-    // settle hodl invoice if no errors
-    const SETTLE_REQUEST: SettleInvoiceRequest = {
-      preimage: Buffer.from(request.preimage),
-    };
-    invoicerpc.settleInvoice(SETTLE_REQUEST, (e: Error, r: any) => {
-      if (!e) {
-        log(`Settled: ${request.preimage}`, LogLevel.INFO, true);
-        nextAvail = Date.now() + request.ttl * 60000;
-        // install and run app, next avail with ttl
-        if (request.isNew && nextAvail < Date.now()) {
-          const CHILD_REPO = spawn("git clone", [`${request.repo}`]);
-          CHILD_REPO.stdout.pipe(process.stdout);
-          const CHILD_RUN = spawn(`${request.run}`);
-          CHILD_RUN.stdout.pipe(process.stdout);
-          janitor(nextAvail, CHILD_RUN);
-        }
-        log(`next avail: ${nextAvail}`, LogLevel.DEBUG, false);
-      } else {
-        log(`${e}`, LogLevel.ERROR, true);
-        invoicerpc.cancelInvoice(SETTLE_REQUEST, (e: Error, r: any) => {
-          if (e) {
-            log(`${e}`, LogLevel.ERROR, true);
+    const INVOICE_REQUEST: any = {};
+    lightning.listInvoices(
+      INVOICE_REQUEST,
+      async (e: Error, r: ListInvoiceResponse) => {
+        let settled = false;
+        r.invoices.forEach((invoice: Invoice) => {
+          if (invoice.payment_request === request.payment_request) {
+            log(`invoices: ${invoice.settled}`, LogLevel.DEBUG, false);
+            settled = invoice.settled;
           }
         });
+        if (!e && settled) {
+          // install and run app, next avail with ttl
+          if (request.isNew && nextAvail < Date.now()) {
+            nextAvail = Date.now() + request.ttl * 60000;
+            await goRepo(request.repo);
+            await runInfrabot(request.run);
+          }
+          log(`next avail: ${nextAvail}`, LogLevel.DEBUG, false);
+        } else {
+          log(`${e}`, LogLevel.ERROR, true);
+        }
       }
-    });
+    );
   }
-}
+};
 
 /**
  * Return quote for the infrabot
  * If infrabot is free it will assist
  * @param res Response manipulation
  */
-export async function fetchQuote(res: any): Promise<void> {
+export const fetchQuote = async (res: any): Promise<void> => {
   if (nextAvail === 0) {
     nextAvail = Date.now();
   }
-  const REQUEST: HoldInvoiceRequest = {
-    hash: randomBytes(32),
-    expiry: InfrabotConfig.DEFAULT_TTL * 600,
+  const ADD_INVOICE_REQUEST: AddInvoiceRequest = {
     memo: DEFAULT_MEMO,
     value: DEFAULT_PAYMENT,
   };
   lightning.getInfo({}, (e: Error, r: NodeInfo) => {
-    invoicerpc.addHoldInvoice(REQUEST, (ie: Error, ir: HoldInvoiceResponse) => {
-      const quote: QuoteResponse = {
-        cpus: os.cpus(),
-        disk: DISK,
-        invoice: null,
-        mem: os.freemem(),
-        next_avail: nextAvail,
-        rent: RENT,
-        ttl: TTL,
-        supported_apps: SUPPORTED_APPS,
-        version: null,
-      };
-      if (e) {
-        log(`${e}`, LogLevel.ERROR, true);
-        return res.status(InfrabotConfig.SERVER_FAILURE);
-      } else if (ie) {
-        log(`${ie}`, LogLevel.ERROR, true);
-        return res.status(InfrabotConfig.SERVER_FAILURE);
-      } else {
-        quote.version = r.version.split("commit=")[0].trim();
-        quote.invoice = ir.payment_request;
-        return res.status(InfrabotConfig.HTTP_OK).json({ quote });
+    lightning.addInvoice(
+      ADD_INVOICE_REQUEST,
+      (ie: Error, ir: AddInvoiceResponse) => {
+        const quote: QuoteResponse = {
+          cpus: os.cpus(),
+          disk: DISK,
+          invoice: null,
+          mem: os.freemem(),
+          next_avail: nextAvail,
+          rent: RENT,
+          ttl: TTL,
+          supported_apps: SUPPORTED_APPS,
+          version: null,
+        };
+        if (e) {
+          log(`${e}`, LogLevel.ERROR, true);
+          return res.status(InfrabotConfig.SERVER_FAILURE);
+        } else if (ie) {
+          log(`${ie}`, LogLevel.ERROR, true);
+          return res.status(InfrabotConfig.SERVER_FAILURE);
+        } else {
+          quote.version = r.version.split("commit=")[0].trim();
+          quote.invoice = ir.payment_request;
+          return res.status(InfrabotConfig.HTTP_OK).json({ quote });
+        }
       }
-    });
+    );
   });
-}
+};
