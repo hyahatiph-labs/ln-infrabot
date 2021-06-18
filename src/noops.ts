@@ -13,6 +13,7 @@ import {
   AddInvoiceResponse,
   ListInvoiceResponse,
   Invoice,
+  Command,
 } from "./config";
 import log, { LogLevel } from "./logging";
 import { lightning } from "./setup";
@@ -36,13 +37,33 @@ const goRepo = async (repo: string) => {
 };
 
 /**
- * Async function for compiling and running the source code
+ * Async function for installing pacakges
  * @param repo repo from infrabot request
  */
-const runInfrabot = async (commands: string) => {
-  const CHILD_RUN = spawn(`${commands}`);
+const runInstall = async (command: Command, cwd: string) => {
+  const CHILD_RUN = spawn(`${command.cmd}`, [...command.args], { cwd });
   CHILD_RUN.stdout.pipe(process.stdout);
-  janitor(nextAvail, CHILD_RUN);
+};
+
+/**
+ * Async function for compiling app
+ * @param repo repo from infrabot request
+ */
+const runCompile = async (command: Command, cwd: string) => {
+  const CHILD_RUN = spawn(`${command.cmd}`, [...command.args], { cwd });
+  CHILD_RUN.stdout.pipe(process.stdout);
+};
+
+/**
+ * Async function for running app
+ * @param repo repo from infrabot request
+ */
+const runInfrabot = async (command: Command, cwd: string, tti: number) => {
+  setTimeout(() => {
+    const CHILD_RUN = spawn(`${command.cmd}`, [...command.args], { cwd });
+    CHILD_RUN.stdout.pipe(process.stdout);
+    janitor(nextAvail, CHILD_RUN);
+  }, tti * 1000);
 };
 
 /**
@@ -74,7 +95,14 @@ export const runNoOps = async (request: InfrabotRequest): Promise<void> => {
           if (request.isNew && nextAvail < Date.now()) {
             nextAvail = Date.now() + request.ttl * 60000;
             await goRepo(request.repo);
-            await runInfrabot(request.run);
+            if (request.install) {
+              await runInstall(request.install, request.cwd);
+            }
+            if (request.compile) {
+              await runCompile(request.compile, request.cwd);
+            }
+            // use tti so that dependencies have time to resolve
+              await runInfrabot(request.run, request.cwd, request.tti);
           }
           log(`next avail: ${nextAvail}`, LogLevel.DEBUG, false);
         } else {

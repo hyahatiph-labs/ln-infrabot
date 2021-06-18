@@ -242,13 +242,35 @@ export interface QuoteResponse {
 }
 
 /**
+ * The interface for the infrabot commands
+ */
+export interface Command {
+  cmd: string;
+  args: string[];
+}
+
+/**
  * The interface for the infrabot request
+ * app - type of language used
+ * cwd - name of directory in repo
+ * isNew - used for extending TTL
+ * repo - full URL of .git repo
+ * install - command for installing deps
+ * tti - time taken in seconds for install
+ * compile - command for compilation
+ * run - command for starting app
+ * payment_request - proof of payment
+ * ttl - total time requested, payment due in TTL on quote
  */
 export interface InfrabotRequest {
   app: string;
+  cwd: string;
   isNew: boolean;
   repo: string;
-  run: string;
+  install: Command | null;
+  tti: number;
+  compile: Command | null;
+  run: Command;
   payment_request: string;
   ttl: number;
 }
