@@ -82,14 +82,25 @@ const runInfrabot = async (
  */
 export const runNoOps = async (
   request: InfrabotRequest,
-  tier: TierLevelTTL
+  tier: TierLevel | string
 ): Promise<void> => {
   // check if app is supported and no apps running
   log(`Request: ${JSON.stringify(request)}`, LogLevel.DEBUG, false);
   if (isSupportedApp(request.app)) {
+    // set the expected time to live base on tier
+    const N_TTL: number =
+      tier === TierLevel.D
+        ? TierLevelTTL.D
+        : tier === TierLevel.C
+        ? TierLevelTTL.C
+        : tier === TierLevel.B
+        ? TierLevelTTL.B
+        : tier === TierLevel.A
+        ? TierLevelTTL.A
+        : TierLevelTTL.S;
     // install and run app, next avail with ttl
     if (request.isNew && nextAvail < Date.now()) {
-      nextAvail = Date.now() + tier * 60000;
+      nextAvail = Date.now() + N_TTL * 60000;
       await goRepo(request.repo);
       if (request.install) {
         await runInstall(request.install, request.cwd);
@@ -98,7 +109,7 @@ export const runNoOps = async (
         await runCompile(request.compile, request.cwd);
       }
       // use tti so that dependencies have time to resolve
-      await runInfrabot(request.run, request.cwd, request.tti, tier);
+      await runInfrabot(request.run, request.cwd, request.tti, N_TTL);
       // kill aperature while infrabot is in use
       // TODO: multi-app deployments
       const KILL_APERTURE = spawn("pkill", ["aperture"]);
@@ -119,22 +130,35 @@ export const runNoOps = async (
  * If infrabot is free it will assist
  * @param res Response manipulation
  */
-export const fetchQuote = async (res: any, tier: TierLevel | string): Promise<void> => {
+export const fetchQuote = async (
+  res: any,
+  tier: TierLevel | string
+): Promise<void> => {
   if (nextAvail === 0) {
     nextAvail = Date.now();
   }
   // set the expected time to live base on tier
-  const Q_TTL: number = tier === TierLevel.D ? TierLevelTTL.D :
-    tier === TierLevel.C ? TierLevelTTL.C :
-    tier === TierLevel.B ? TierLevelTTL.B :
-    tier === TierLevel.A ? TierLevelTTL.A :
-    TierLevelTTL.S;
-    // get the rent based on tier and satoshis per hour
-  const Q_RENT: number = tier === TierLevel.D ? (TierLevelTTL.D / InfrabotConfig.HOUR) * RENT :
-    tier === TierLevel.C ? (TierLevelTTL.C / InfrabotConfig.HOUR) * RENT :
-    tier === TierLevel.B ? (TierLevelTTL.B / InfrabotConfig.HOUR) * RENT :
-    tier === TierLevel.A ? (TierLevelTTL.A / InfrabotConfig.HOUR) * RENT :
-    (TierLevelTTL.S / InfrabotConfig.HOUR) * RENT;
+  const Q_TTL: number =
+    tier === TierLevel.D
+      ? TierLevelTTL.D
+      : tier === TierLevel.C
+      ? TierLevelTTL.C
+      : tier === TierLevel.B
+      ? TierLevelTTL.B
+      : tier === TierLevel.A
+      ? TierLevelTTL.A
+      : TierLevelTTL.S;
+  // get the rent based on tier and satoshis per hour
+  const Q_RENT: number =
+    tier === TierLevel.D
+      ? (TierLevelTTL.D / InfrabotConfig.HOUR) * RENT
+      : tier === TierLevel.C
+      ? (TierLevelTTL.C / InfrabotConfig.HOUR) * RENT
+      : tier === TierLevel.B
+      ? (TierLevelTTL.B / InfrabotConfig.HOUR) * RENT
+      : tier === TierLevel.A
+      ? (TierLevelTTL.A / InfrabotConfig.HOUR) * RENT
+      : (TierLevelTTL.S / InfrabotConfig.HOUR) * RENT;
   const quote: QuoteResponse = {
     cpus: os.cpus(),
     disk: DISK,
