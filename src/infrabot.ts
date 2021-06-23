@@ -17,6 +17,7 @@ import {
   SSL_SCHEMA,
   InfrabotMode,
   INFRABOT_ENV,
+  TierLevelTTL,
   TierLevel,
 } from "./config";
 import prompt from "prompt";
@@ -38,9 +39,10 @@ APP.get("/infrabot/health", (req, res) => {
 });
 
 // quote for infrabot
-APP.get("/infrabot/quote", (req, res) => {
+APP.get("/infrabot/quote/:tier", (req, res) => {
   log(`${req.ip} connected to infrabot/quote`, LogLevel.INFO, true);
-  fetchQuote(res)
+  const tier: TierLevel | string= req.params.tier;
+  fetchQuote(res, tier)
   .then(quote => quote)
   .catch(e => {
     log(`${e}`, LogLevel.DEBUG, false);
@@ -50,9 +52,9 @@ APP.get("/infrabot/quote", (req, res) => {
 
 // NoOps for infrabot
 // this endpoint runs the default tier
-APP.post("/infrabot/noops", (req, res) => {
-  log(`${req.ip} connected to infrabot/noops`, LogLevel.INFO, true);
-  runNoOps(req.body, TierLevel.D).catch(e => {
+APP.post("/infrabot/noops/d", (req, res) => {
+  log(`${req.ip} connected to infrabot/noops/d`, LogLevel.INFO, true);
+  runNoOps(req.body, TierLevelTTL.D).catch(e => {
     log(`${e}`, LogLevel.ERROR, true);
   });
   res.status(InfrabotConfig.HTTP_OK).json({ msg: `Defalut NoOps Completed` });
@@ -60,9 +62,9 @@ APP.post("/infrabot/noops", (req, res) => {
 
 // NoOps for infrabot
 // this endpoint runs the conservative tier
-APP.post("/infrabot/c/noops", (req, res) => {
-  log(`${req.ip} connected to infrabot/c/noops`, LogLevel.INFO, true);
-  runNoOps(req.body, TierLevel.C).catch(e => {
+APP.post("/infrabot/noops/c", (req, res) => {
+  log(`${req.ip} connected to infrabot/noops/c`, LogLevel.INFO, true);
+  runNoOps(req.body, TierLevelTTL.C).catch(e => {
     log(`${e}`, LogLevel.ERROR, true);
   });
   res.status(InfrabotConfig.HTTP_OK).json({ msg: `Conservative NoOps Completed` });
@@ -70,9 +72,9 @@ APP.post("/infrabot/c/noops", (req, res) => {
 
 // NoOps for infrabot
 // this endpoint runs the better tier
-APP.post("/infrabot/b/noops", (req, res) => {
-  log(`${req.ip} connected to infrabot/b/noops`, LogLevel.INFO, true);
-  runNoOps(req.body, TierLevel.B).catch(e => {
+APP.post("/infrabot/noops/b", (req, res) => {
+  log(`${req.ip} connected to infrabot/noops/b`, LogLevel.INFO, true);
+  runNoOps(req.body, TierLevelTTL.B).catch(e => {
     log(`${e}`, LogLevel.ERROR, true);
   });
   res.status(InfrabotConfig.HTTP_OK).json({ msg: `Better NoOps Completed` });
@@ -80,9 +82,9 @@ APP.post("/infrabot/b/noops", (req, res) => {
 
 // NoOps for infrabot
 // this endpoint runs the alpha tier
-APP.post("/infrabot/a/noops", (req, res) => {
-  log(`${req.ip} connected to infrabot/a/noops`, LogLevel.INFO, true);
-  runNoOps(req.body, TierLevel.A).catch(e => {
+APP.post("/infrabot/noops/a", (req, res) => {
+  log(`${req.ip} connected to infrabot/noops/a`, LogLevel.INFO, true);
+  runNoOps(req.body, TierLevelTTL.A).catch(e => {
     log(`${e}`, LogLevel.ERROR, true);
   });
   res.status(InfrabotConfig.HTTP_OK).json({ msg: `Alpha NoOps Completed` });
@@ -90,9 +92,9 @@ APP.post("/infrabot/a/noops", (req, res) => {
 
 // NoOps for infrabot
 // this endpoint runs the super tier
-APP.post("/infrabot/s/noops", (req, res) => {
-  log(`${req.ip} connected to infrabot/s/noops`, LogLevel.INFO, true);
-  runNoOps(req.body, TierLevel.S).catch(e => {
+APP.post("/infrabot/noops/s", (req, res) => {
+  log(`${req.ip} connected to infrabot/noops/s`, LogLevel.INFO, true);
+  runNoOps(req.body, TierLevelTTL.S).catch(e => {
     log(`${e}`, LogLevel.ERROR, true);
   });
   res.status(InfrabotConfig.HTTP_OK).json({ msg: `Alpha NoOps Completed` });

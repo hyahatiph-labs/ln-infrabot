@@ -11,10 +11,6 @@ export interface ConfigFile {
   aperturePath: string;
 }
 
-// default initial info for first quote
-export const DEFAULT_PAYMENT = 10;
-export const DEFAULT_MEMO = "infrabot invoice"
-
 /**
  * Global settings for the server
  */
@@ -32,6 +28,7 @@ export enum InfrabotConfig {
   // default disk size restriction
   // TODO: add validation
   DEFAULT_DISK = 1,
+  HOUR = 60,
   HTTP_OK = 200,
   UNAUTHORIZED = 403,
   SERVER_FAILURE = 500,
@@ -149,7 +146,7 @@ const CUSTOM_RENT: string = ARGS["rent"];
 const CUSTOM_TTL: string = ARGS["ttl"];
 const CUSTOM_APPS: string = ARGS["support-apps"];
 const CUSTOM_DISK: number = ARGS["disk"];
-export const RENT: number | string = !CUSTOM_RENT
+export const RENT: number = !CUSTOM_RENT
   ? InfrabotConfig.DEFAULT_RENT
   : parseInt(CUSTOM_RENT, 10);
 export const TTL: number = !CUSTOM_TTL
@@ -284,10 +281,23 @@ export interface InfrabotRequest {
  * should be configured accordingly in the aperture.yml
  * (e.g. Tier C - TTL 1 day, cost 240 sats (10 sats per hour))
  */
-export enum TierLevel {
+export enum TierLevelTTL {
   D = 60,
   C = 1440,
   B = 10080,
   A = 40320,
   S = 524160
+}
+
+/**
+ * Interface for controlling tiers in regards
+ * to level. This is received from the quote request
+ * and then is used to generate approximated cost.
+ */
+ export enum TierLevel {
+  D = "d",
+  C = "c",
+  B = "b",
+  A = "a",
+  S = "s"
 }

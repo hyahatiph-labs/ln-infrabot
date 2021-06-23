@@ -54,13 +54,13 @@ etcd:
 services:
     # The identifying name of the service. This will also be used to identify
     # which capabilities caveat (if any) corresponds to the service.
-  - name: "infrabot"
+  - name: "infrabot-health"
 
     # The regular expression used to match the service host.
     #hostregexp: '^$'
 
     # The regular expression used to match the path of the URL.
-    #pathregexp: '^/.*$'
+    pathregexp: '^*/health$'
 
     # The host:port which the service can be reached at.
     address: "localhost:3637"
@@ -71,7 +71,7 @@ services:
 
     # If required, a path to the service's TLS certificate to successfully
     # establish a secure connection.
-    tlscertpath: "/home/user/.lnd/tls.cert"
+    #tlscertpath: "/home/nigellchristian/.lnd/tls.cert"
 
     # A comma-delimited list of capabilities that will be granted for tokens of
     # the service at the base tier.
@@ -83,16 +83,97 @@ services:
         "valid_until": "2021-12-12"
 
     # The LSAT value in satoshis for the service.
-    price: 10    
+    price: 10 
 
-  - name: "infrabot"
-    hostregexp: "localhost:3637"
-    pathregexp: '^/.*$'
+  # d-tier quote config
+  - name: "infrabot-quote-d"
     address: "localhost:3637"
+    pathregexp: '^*/quote/d$'
     protocol: http
     constraints:
         "valid_until": "2022-12-12"
     price: 10
+  
+  # c-tier quote config
+  - name: "infrabot-quote-c"
+    address: "localhost:3637"
+    pathregexp: '^*/quote/c$'
+    protocol: http
+    constraints:
+        "valid_until": "2022-12-12"
+    price: 10
+
+  # b-tier quote config
+  - name: "infrabot-quote-b"
+    address: "localhost:3637"
+    pathregexp: '^*/quote/b$'
+    protocol: http
+    constraints:
+        "valid_until": "2022-12-12"
+    price: 10
+
+  # a-tier quote config
+  - name: "infrabot-quote-a"
+    address: "localhost:3637"
+    pathregexp: '^*/quote/a$'
+    protocol: http
+    constraints:
+        "valid_until": "2022-12-12"
+    price: 10
+
+  # s-tier quote config
+  - name: "infrabot-quote-s"
+    address: "localhost:3637"
+    pathregexp: '^*/quote/s$'
+    protocol: http
+    constraints:
+        "valid_until": "2022-12-12"
+    price: 10
+
+  # D-tier config
+  - name: "infrabot-s"
+    address: "localhost:3637"
+    pathregexp: '^*/noops/d$'
+    protocol: http
+    constraints:
+        "valid_until": "2022-12-12"
+    price: 10
+
+  # C-tier config
+  - name: "infrabot-c"
+    address: "localhost:3637"
+    pathregexp: '^*/noops/c$'
+    protocol: http
+    constraints:
+        "valid_until": "2022-12-12"
+    price: 240
+
+  # B-tier config
+  - name: "infrabot-b"
+    address: "localhost:3637"
+    pathregexp: '^*/noops/b$'
+    protocol: http
+    constraints:
+        "valid_until": "2023-12-12"
+    price: 1680
+
+  # A-tier config
+  - name: "infrabot-a"
+    address: "localhost:3637"
+    pathregexp: '^*/noops/a$'
+    protocol: http
+    constraints:
+        "valid_until": "2024-12-12"
+    price: 6720
+  
+  # S-tier config
+  - name: "infrabot-s"
+    address: "localhost:3637"
+    pathregexp: '^*/noops/s$'
+    protocol: http
+    constraints:
+        "valid_until": "2025-12-12"
+    price: 87360
 
 # Settings for a Tor instance to allow requests over Tor as onion services.
 # Configuring Tor is optional.

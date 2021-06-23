@@ -1,6 +1,6 @@
 import log, { LogLevel } from "./logging";
 import os from "os";
-import { DEFAULT_APERTURE_PATH, InfrabotMode, SUPPORTED_APPS, TierLevel, TTL } from "./config";
+import { DEFAULT_APERTURE_PATH, InfrabotMode, SUPPORTED_APPS, TierLevelTTL } from "./config";
 import { ChildProcessWithoutNullStreams, spawn } from "child_process";
 
 /**
@@ -16,9 +16,9 @@ import { ChildProcessWithoutNullStreams, spawn } from "child_process";
  */
 export const janitor = (
   process: ChildProcessWithoutNullStreams,
-  tier: TierLevel
+  tier: TierLevelTTL
 ): void => {
-  const INTERVAL = setTimeout(() => {
+  setTimeout(() => {
     // bring aperture back online
     // TODO: multi-app deployments
     const EXEC_APERTURE = spawn(`./${DEFAULT_APERTURE_PATH}`);

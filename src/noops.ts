@@ -5,8 +5,8 @@ import {
   QuoteResponse,
   RENT,
   SUPPORTED_APPS,
-  TTL,
   Command,
+  TierLevelTTL,
   TierLevel,
 } from "./config";
 import log, { LogLevel } from "./logging";
@@ -60,7 +60,7 @@ const runInfrabot = async (
   command: Command,
   cwd: string,
   tti: number,
-  tier: TierLevel
+  tier: TierLevelTTL
 ) => {
   setTimeout(() => {
     const CHILD_RUN = spawn(`${command.cmd}`, [...command.args], { cwd });
@@ -82,7 +82,7 @@ const runInfrabot = async (
  */
 export const runNoOps = async (
   request: InfrabotRequest,
-  tier: TierLevel
+  tier: TierLevelTTL
 ): Promise<void> => {
   // check if app is supported and no apps running
   log(`Request: ${JSON.stringify(request)}`, LogLevel.DEBUG, false);
@@ -119,20 +119,32 @@ export const runNoOps = async (
  * If infrabot is free it will assist
  * @param res Response manipulation
  */
-export const fetchQuote = async (res: any): Promise<void> => {
+export const fetchQuote = async (res: any, tier: TierLevel | string): Promise<void> => {
   if (nextAvail === 0) {
     nextAvail = Date.now();
   }
+  // set the expected time to live base on tier
+  const Q_TTL: number = tier === TierLevel.D ? TierLevelTTL.D :
+    tier === TierLevel.C ? TierLevelTTL.C :
+    tier === TierLevel.B ? TierLevelTTL.B :
+    tier === TierLevel.A ? TierLevelTTL.A :
+    TierLevelTTL.S;
+    // get the rent based on tier and satoshis per hour
+  const Q_RENT: number = tier === TierLevel.D ? (TierLevelTTL.D / InfrabotConfig.HOUR) * RENT :
+    tier === TierLevel.C ? (TierLevelTTL.C / InfrabotConfig.HOUR) * RENT :
+    tier === TierLevel.B ? (TierLevelTTL.B / InfrabotConfig.HOUR) * RENT :
+    tier === TierLevel.A ? (TierLevelTTL.A / InfrabotConfig.HOUR) * RENT :
+    (TierLevelTTL.S / InfrabotConfig.HOUR) * RENT;
   const quote: QuoteResponse = {
     cpus: os.cpus(),
     disk: DISK,
     mem: os.freemem(),
     next_avail: nextAvail,
-    rent: RENT,
-    ttl: TTL,
+    rent: Q_RENT,
+    ttl: Q_TTL,
     supported_apps: SUPPORTED_APPS,
     // TODO: read from package.json
-    version: process.env.npm_package_version,
+    version: process.env.INFRABOT_VERSION,
   };
   return res.status(InfrabotConfig.HTTP_OK).json({ quote });
 };
