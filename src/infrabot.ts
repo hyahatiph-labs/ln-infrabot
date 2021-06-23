@@ -17,6 +17,7 @@ import {
   SSL_SCHEMA,
   InfrabotMode,
   INFRABOT_ENV,
+  TierLevel,
 } from "./config";
 import prompt from "prompt";
 import { fetchQuote, runNoOps } from "./noops";
@@ -48,12 +49,53 @@ APP.get("/infrabot/quote", (req, res) => {
 });
 
 // NoOps for infrabot
+// this endpoint runs the default tier
 APP.post("/infrabot/noops", (req, res) => {
   log(`${req.ip} connected to infrabot/noops`, LogLevel.INFO, true);
-  runNoOps(req.body).catch(e => {
+  runNoOps(req.body, TierLevel.D).catch(e => {
     log(`${e}`, LogLevel.ERROR, true);
   });
-  res.status(InfrabotConfig.HTTP_OK).json({ msg: `NoOps Completed` });
+  res.status(InfrabotConfig.HTTP_OK).json({ msg: `Defalut NoOps Completed` });
+});
+
+// NoOps for infrabot
+// this endpoint runs the conservative tier
+APP.post("/infrabot/c/noops", (req, res) => {
+  log(`${req.ip} connected to infrabot/c/noops`, LogLevel.INFO, true);
+  runNoOps(req.body, TierLevel.C).catch(e => {
+    log(`${e}`, LogLevel.ERROR, true);
+  });
+  res.status(InfrabotConfig.HTTP_OK).json({ msg: `Conservative NoOps Completed` });
+});
+
+// NoOps for infrabot
+// this endpoint runs the better tier
+APP.post("/infrabot/b/noops", (req, res) => {
+  log(`${req.ip} connected to infrabot/b/noops`, LogLevel.INFO, true);
+  runNoOps(req.body, TierLevel.B).catch(e => {
+    log(`${e}`, LogLevel.ERROR, true);
+  });
+  res.status(InfrabotConfig.HTTP_OK).json({ msg: `Better NoOps Completed` });
+});
+
+// NoOps for infrabot
+// this endpoint runs the alpha tier
+APP.post("/infrabot/a/noops", (req, res) => {
+  log(`${req.ip} connected to infrabot/a/noops`, LogLevel.INFO, true);
+  runNoOps(req.body, TierLevel.A).catch(e => {
+    log(`${e}`, LogLevel.ERROR, true);
+  });
+  res.status(InfrabotConfig.HTTP_OK).json({ msg: `Alpha NoOps Completed` });
+});
+
+// NoOps for infrabot
+// this endpoint runs the super tier
+APP.post("/infrabot/s/noops", (req, res) => {
+  log(`${req.ip} connected to infrabot/s/noops`, LogLevel.INFO, true);
+  runNoOps(req.body, TierLevel.S).catch(e => {
+    log(`${e}`, LogLevel.ERROR, true);
+  });
+  res.status(InfrabotConfig.HTTP_OK).json({ msg: `Alpha NoOps Completed` });
 });
 
 /**

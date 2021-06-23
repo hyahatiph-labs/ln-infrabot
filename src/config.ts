@@ -8,6 +8,7 @@ export interface ConfigFile {
   tlsPath: string;
   rpcProtoPath: string;
   invoiceProtoPath: string;
+  aperturePath: string;
 }
 
 // default initial info for first quote
@@ -192,6 +193,7 @@ export const DEFAULT_LND_HOST = "localhost:10009";
 export const DEFAULT_TLS_PATH = `${os.homedir()}/.lnd/tls.cert`;
 export const DEFAULT_RPC_PROTO_PATH = `${os.homedir()}/lnd/lnrpc/rpc.proto`;
 export const DEFAULT_INVOICES_PROTO_PATH = `${os.homedir()}/lnd/lnrpc/invoicesrpc/invoices.proto`;
+export const DEFAULT_APERTURE_PATH = `${os.homedir()}.go/bin/aperture`;
 export const INDENT = 2;
 
 /**
@@ -203,6 +205,7 @@ export const DEFAULT_CONFIG: ConfigFile = {
   tlsPath: DEFAULT_TLS_PATH,
   rpcProtoPath: DEFAULT_RPC_PROTO_PATH,
   invoiceProtoPath: DEFAULT_INVOICES_PROTO_PATH,
+  aperturePath: DEFAULT_APERTURE_PATH
 };
 
 /**
@@ -261,8 +264,6 @@ export interface Command {
  * tti - time taken in seconds for install
  * compile - command for compilation
  * run - command for starting app
- * payment_request - proof of payment
- * ttl - total time requested, payment due in TTL on quote
  */
 export interface InfrabotRequest {
   app: string;
@@ -273,36 +274,20 @@ export interface InfrabotRequest {
   tti: number;
   compile: Command | null;
   run: Command;
-  payment_request: string;
-  ttl: number;
 }
 
 /**
- * The interface for the invoice request
+ * Interface for controlling tiers in regards
+ * to TTL. Higher tier will have longer associated
+ * execution duration. The value associated with the
+ * tier is the time in minutes. Sats for the LSAT 
+ * should be configured accordingly in the aperture.yml
+ * (e.g. Tier C - TTL 1 day, cost 240 sats (10 sats per hour))
  */
- export interface AddInvoiceRequest {
-  memo: string;
-  value: number;
-}
-
-/**
- * The interface for the invoice response
- */
- export interface AddInvoiceResponse {
-  payment_request: string;
-}
-
-/**
- * The interface for the invoice
- */
-export interface Invoice {
-  payment_request: string;
-  settled: boolean;
-}
-
-/**
- * The interface for the list invoices response
- */
-export interface ListInvoiceResponse {
-  invoices: Invoice[];
+export enum TierLevel {
+  D = 60,
+  C = 1440,
+  B = 10080,
+  A = 40320,
+  S = 524160
 }

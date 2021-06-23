@@ -1,27 +1,36 @@
 import log, { LogLevel } from "./logging";
 import os from "os";
-import { InfrabotMode, SUPPORTED_APPS, TTL } from "./config";
-import { ChildProcessWithoutNullStreams } from "child_process";
+import { DEFAULT_APERTURE_PATH, InfrabotMode, SUPPORTED_APPS, TierLevel, TTL } from "./config";
+import { ChildProcessWithoutNullStreams, spawn } from "child_process";
 
 /**
  * This janitor runs while an app is active
  * When the first payment is received and the app
  * is extended to first ttl the janitor wakes up.
- * If ttl is reached and no payment has arrived
+ * When TTL is reached (based on tier) then
  * the currently running app is destroyed and
- * janitor goes back to sleep.
- * @param nextAvail - time until expiration of currently running app
+ * janitor goes back to sleep. Aperture is brought back
+ * online once the end of Tier Level TTL is reached.
+ * @param process - child process of the app
+ * @param tier - tier of the currently running app
  */
 export const janitor = (
-  nextAvail: number,
-  process: ChildProcessWithoutNullStreams
+  process: ChildProcessWithoutNullStreams,
+  tier: TierLevel
 ): void => {
-  const INTERVAL = setInterval(() => {
-    if (nextAvail < Date.now()) {
-      process.kill();
-      clearInterval(INTERVAL);
+  const INTERVAL = setTimeout(() => {
+    // bring aperture back online
+    // TODO: multi-app deployments
+    const EXEC_APERTURE = spawn(`./${DEFAULT_APERTURE_PATH}`);
+    if (EXEC_APERTURE.exitCode) {
+      log(
+        "Aperture online. Infrabot is accepting requests.",
+        LogLevel.DEBUG,
+        true
+      );
     }
-  }, TTL * 60000);
+    process.kill();
+  }, tier * 60000);
 };
 
 /**

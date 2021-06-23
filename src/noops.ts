@@ -7,6 +7,7 @@ import {
   SUPPORTED_APPS,
   TTL,
   Command,
+  TierLevel,
 } from "./config";
 import log, { LogLevel } from "./logging";
 import os from "os";
@@ -30,7 +31,8 @@ const goRepo = async (repo: string) => {
 
 /**
  * Async function for installing pacakges
- * @param repo repo from infrabot request
+ * @param Command - command from infrabot request for compilation
+ * @param cwd - directory to execute compilation commands
  */
 const runInstall = async (command: Command, cwd: string) => {
   const CHILD_RUN = spawn(`${command.cmd}`, [...command.args], { cwd });
@@ -39,7 +41,8 @@ const runInstall = async (command: Command, cwd: string) => {
 
 /**
  * Async function for compiling app
- * @param repo repo from infrabot request
+ * @param Command - command from infrabot request for compilation
+ * @param cwd - directory to execute compilation commands
  */
 const runCompile = async (command: Command, cwd: string) => {
   const CHILD_RUN = spawn(`${command.cmd}`, [...command.args], { cwd });
@@ -48,32 +51,45 @@ const runCompile = async (command: Command, cwd: string) => {
 
 /**
  * Async function for running app
- * @param repo repo from infrabot request
+ * @param Command - command from the request
+ * @param cwd - directory to execute commands
+ * @param tti - time needed to install dependencies
+ * @param tier - Tier level for TTL
  */
-const runInfrabot = async (command: Command, cwd: string, tti: number) => {
+const runInfrabot = async (
+  command: Command,
+  cwd: string,
+  tti: number,
+  tier: TierLevel
+) => {
   setTimeout(() => {
     const CHILD_RUN = spawn(`${command.cmd}`, [...command.args], { cwd });
     CHILD_RUN.stdout.pipe(process.stdout);
-    janitor(nextAvail, CHILD_RUN);
+    janitor(CHILD_RUN, tier);
   }, tti * 1000);
 };
 
 /**
  * Process the request from the user and
  * execute NoOps. If there is already an app
- * running the only functionality is extending
- * the ttl. The next availability is reset once
- * no payments are received and the ttl window
- * is over.
+ * running the server will not execute as Aperture
+ * is killed and brought back online programatically.
+ * The LSAT generated allows access at a certain tier
+ * until the time limit expires (e.g. one-year). This is,
+ * however, dependent on availability.
  * @param request - request from user
+ * @param tier - Tier level for TTL
  */
-export const runNoOps = async (request: InfrabotRequest): Promise<void> => {
+export const runNoOps = async (
+  request: InfrabotRequest,
+  tier: TierLevel
+): Promise<void> => {
   // check if app is supported and no apps running
   log(`Request: ${JSON.stringify(request)}`, LogLevel.DEBUG, false);
   if (isSupportedApp(request.app)) {
     // install and run app, next avail with ttl
     if (request.isNew && nextAvail < Date.now()) {
-      nextAvail = Date.now() + request.ttl * 60000;
+      nextAvail = Date.now() + tier * 60000;
       await goRepo(request.repo);
       if (request.install) {
         await runInstall(request.install, request.cwd);
@@ -82,7 +98,17 @@ export const runNoOps = async (request: InfrabotRequest): Promise<void> => {
         await runCompile(request.compile, request.cwd);
       }
       // use tti so that dependencies have time to resolve
-      await runInfrabot(request.run, request.cwd, request.tti);
+      await runInfrabot(request.run, request.cwd, request.tti, tier);
+      // kill aperature while infrabot is in use
+      // TODO: multi-app deployments
+      const KILL_APERTURE = spawn("pkill", ["aperture"]);
+      if (KILL_APERTURE.exitCode) {
+        log(
+          "Aperture killed successfully. Infrabot no longer accepting requests.",
+          LogLevel.DEBUG,
+          true
+        );
+      }
     }
     log(`next avail: ${nextAvail}`, LogLevel.DEBUG, false);
   }
