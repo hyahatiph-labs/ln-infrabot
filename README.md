@@ -55,7 +55,7 @@ api.http               # used with VSCode [humao.rest-client] for local testing
 ## Development
 
 1. Set environment variable `export INFRABOT_ENV=DEV` for development if needed
-2. Run `node dist/src/gitpayd.js` to run server *--help for help
+2. Run `node dist/src/infrabot.js` to run server *--help for help
 3. Infrabot runs behind [Aperture](https://github.com/lightninglabs/aperture). Sample config at `./aperture.yml`
 3. Test health check at `http://hostname:3637/infrabot/health` (*port 3636 is default secure port)
 4. Verify configuration files at `~/.ln-infrabot/config.json`
@@ -73,7 +73,8 @@ api.http               # used with VSCode [humao.rest-client] for local testing
   "internalApiKey": "xxx",
   "tlsPath": "/home/USER/path/to/tls.cert",
   "rpcProtoPath": "/home/USER/path/to/rpc.proto",
-  "routerProtoPath": "/home/USER/path/to/routerrpc/router.proto"
+  "routerProtoPath": "/home/USER/path/to/routerrpc/router.proto",
+  "aperturePath": "path/to/aperture"
 }
 ```
 
