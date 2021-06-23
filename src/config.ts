@@ -23,10 +23,13 @@ export enum InfrabotConfig {
   DEV = "DEV",
   DEFAULT_HOST = "127.0.0.1",
   // sats per hour
-  DEFAULT_RENT = 60,
+  // configure via aperature
+  DEFAULT_RENT = 10,
   // min. run time in minutes
-  DEFAULT_TTL = 10,
+  DEFAULT_TTL = 60,
   DEFAULT_SUPPORTED_APPS = "node.js",
+  // default disk size restriction
+  // TODO: add validation
   DEFAULT_DISK = 1,
   HTTP_OK = 200,
   UNAUTHORIZED = 403,
@@ -233,7 +236,6 @@ export interface QuoteResponse {
   cpus: CpuInfo[];
   mem: number;
   disk: number;
-  invoice: string;
   next_avail: number;
   rent: number | string;
   supported_apps: string[];

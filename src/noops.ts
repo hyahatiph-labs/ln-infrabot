@@ -1,22 +1,14 @@
 import {
-  DEFAULT_PAYMENT,
-  DEFAULT_MEMO,
   DISK,
   InfrabotConfig,
   InfrabotRequest,
-  NodeInfo,
   QuoteResponse,
   RENT,
   SUPPORTED_APPS,
   TTL,
-  AddInvoiceRequest,
-  AddInvoiceResponse,
-  ListInvoiceResponse,
-  Invoice,
   Command,
 } from "./config";
 import log, { LogLevel } from "./logging";
-import { lightning } from "./setup";
 import os from "os";
 import { spawn } from "child_process";
 import { isSupportedApp, janitor } from "./util";
@@ -79,37 +71,20 @@ export const runNoOps = async (request: InfrabotRequest): Promise<void> => {
   // check if app is supported and no apps running
   log(`Request: ${JSON.stringify(request)}`, LogLevel.DEBUG, false);
   if (isSupportedApp(request.app)) {
-    const INVOICE_REQUEST: any = {};
-    lightning.listInvoices(
-      INVOICE_REQUEST,
-      async (e: Error, r: ListInvoiceResponse) => {
-        let settled = false;
-        r.invoices.forEach((invoice: Invoice) => {
-          if (invoice.payment_request === request.payment_request) {
-            log(`invoices: ${invoice.settled}`, LogLevel.DEBUG, false);
-            settled = invoice.settled;
-          }
-        });
-        if (!e && settled) {
-          // install and run app, next avail with ttl
-          if (request.isNew && nextAvail < Date.now()) {
-            nextAvail = Date.now() + request.ttl * 60000;
-            await goRepo(request.repo);
-            if (request.install) {
-              await runInstall(request.install, request.cwd);
-            }
-            if (request.compile) {
-              await runCompile(request.compile, request.cwd);
-            }
-            // use tti so that dependencies have time to resolve
-              await runInfrabot(request.run, request.cwd, request.tti);
-          }
-          log(`next avail: ${nextAvail}`, LogLevel.DEBUG, false);
-        } else {
-          log(`${e}`, LogLevel.ERROR, true);
-        }
+    // install and run app, next avail with ttl
+    if (request.isNew && nextAvail < Date.now()) {
+      nextAvail = Date.now() + request.ttl * 60000;
+      await goRepo(request.repo);
+      if (request.install) {
+        await runInstall(request.install, request.cwd);
       }
-    );
+      if (request.compile) {
+        await runCompile(request.compile, request.cwd);
+      }
+      // use tti so that dependencies have time to resolve
+      await runInfrabot(request.run, request.cwd, request.tti);
+    }
+    log(`next avail: ${nextAvail}`, LogLevel.DEBUG, false);
   }
 };
 
@@ -122,37 +97,16 @@ export const fetchQuote = async (res: any): Promise<void> => {
   if (nextAvail === 0) {
     nextAvail = Date.now();
   }
-  const ADD_INVOICE_REQUEST: AddInvoiceRequest = {
-    memo: DEFAULT_MEMO,
-    value: DEFAULT_PAYMENT,
+  const quote: QuoteResponse = {
+    cpus: os.cpus(),
+    disk: DISK,
+    mem: os.freemem(),
+    next_avail: nextAvail,
+    rent: RENT,
+    ttl: TTL,
+    supported_apps: SUPPORTED_APPS,
+    // TODO: read from package.json
+    version: process.env.npm_package_version,
   };
-  lightning.getInfo({}, (e: Error, r: NodeInfo) => {
-    lightning.addInvoice(
-      ADD_INVOICE_REQUEST,
-      (ie: Error, ir: AddInvoiceResponse) => {
-        const quote: QuoteResponse = {
-          cpus: os.cpus(),
-          disk: DISK,
-          invoice: null,
-          mem: os.freemem(),
-          next_avail: nextAvail,
-          rent: RENT,
-          ttl: TTL,
-          supported_apps: SUPPORTED_APPS,
-          version: null,
-        };
-        if (e) {
-          log(`${e}`, LogLevel.ERROR, true);
-          return res.status(InfrabotConfig.SERVER_FAILURE);
-        } else if (ie) {
-          log(`${ie}`, LogLevel.ERROR, true);
-          return res.status(InfrabotConfig.SERVER_FAILURE);
-        } else {
-          quote.version = r.version.split("commit=")[0].trim();
-          quote.invoice = ir.payment_request;
-          return res.status(InfrabotConfig.HTTP_OK).json({ quote });
-        }
-      }
-    );
-  });
+  return res.status(InfrabotConfig.HTTP_OK).json({ quote });
 };

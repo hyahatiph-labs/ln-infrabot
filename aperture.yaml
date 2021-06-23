@@ -1,0 +1,115 @@
+# The address which the proxy can be reached at.
+listenaddr: "localhost:8081"
+
+# The root path of static content to serve upon receiving a request the proxy
+# cannot handle.
+staticroot: "./static"
+
+# Should the static file server be enabled that serves files from the directory
+# specified in `staticroot`?
+servestatic: false
+
+# The log level that should be used for the proxy.
+#
+# Valid options include: trace, debug, info, warn, error, critical, off.
+debuglevel: "debug"
+
+# Whether the proxy should create a valid certificate through Let's Encrypt for
+# the fully qualifying domain name.
+autocert: false
+servername: aperture.example.com
+
+# Settings for the lnd node used to generate payment requests. All of these
+# options are required.
+authenticator:
+  # The host:port which lnd's RPC can be reached at.
+  lndhost: "localhost:10009"
+
+  # The path to lnd's TLS certificate.
+  tlspath: "/home/user/.lnd/tls.cert"
+
+  # The path to lnd's macaroon directory.
+  macdir: "/home/user/.lnd/data/chain/bitcoin/regtest"
+
+  # The chain network the lnd is active on.
+  network: "regtest"
+
+# Settings for the etcd instance which the proxy will use to reliably store and
+# retrieve token information.
+etcd:
+  # The client host:port which the etcd instance can be reached at.
+  host: "localhost:2379"
+
+  # If authentication is enabled, the user and password required to access the
+  # etcd instance.
+  user: "user"
+  password: "password"
+
+# List of services that should be reachable behind the proxy.  Requests will be
+# matched to the services in order, picking the first that satisfies hostregexp
+# and (if set) pathregexp. So order is important!
+#
+# Use single quotes for regular expressions with special characters in them to
+# avoid YAML parsing errors!
+services:
+    # The identifying name of the service. This will also be used to identify
+    # which capabilities caveat (if any) corresponds to the service.
+  - name: "infrabot"
+
+    # The regular expression used to match the service host.
+    #hostregexp: '^$'
+
+    # The regular expression used to match the path of the URL.
+    #pathregexp: '^/.*$'
+
+    # The host:port which the service can be reached at.
+    address: "localhost:3637"
+
+    # The HTTP protocol that should be used to connect to the service. Valid
+    # options include: http, https.
+    protocol: http
+
+    # If required, a path to the service's TLS certificate to successfully
+    # establish a secure connection.
+    tlscertpath: "/home/user/.lnd/tls.cert"
+
+    # A comma-delimited list of capabilities that will be granted for tokens of
+    # the service at the base tier.
+    capabilities: "run"
+
+    # The set of constraints that are applied to tokens of the service at the
+    # base tier.
+    constraints:
+        "valid_until": "2021-12-12"
+
+    # The LSAT value in satoshis for the service.
+    price: 10    
+
+  - name: "infrabot"
+    hostregexp: "localhost:3637"
+    pathregexp: '^/.*$'
+    address: "localhost:3637"
+    protocol: http
+    constraints:
+        "valid_until": "2022-12-12"
+    price: 10
+
+# Settings for a Tor instance to allow requests over Tor as onion services.
+# Configuring Tor is optional.
+tor:
+  # The host:port which Tor's control can be reached at.
+  control: "localhost:9051"
+
+  # The internal port we should listen on for client requests over Tor. Note
+  # that this port should not be exposed to the outside world, it is only
+  # intended to be reached by clients through the onion service.
+  listenport: 8082
+
+  # The port through which the onion services to be created can be reached at.
+  virtualport: 8082
+
+  # Whether a v2 onion service should be created to handle requests.
+  v2: false
+
+  # Whether a v3 onion service should be created to handle requests.
+  v3: false
