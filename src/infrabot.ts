@@ -17,7 +17,6 @@ import {
   SSL_SCHEMA,
   InfrabotMode,
   INFRABOT_ENV,
-  TierLevelTTL,
   TierLevel,
 } from "./config";
 import prompt from "prompt";

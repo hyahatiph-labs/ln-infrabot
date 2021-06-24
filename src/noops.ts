@@ -65,7 +65,7 @@ const runInfrabot = async (
   setTimeout(() => {
     const CHILD_RUN = spawn(`${command.cmd}`, [...command.args], { cwd });
     CHILD_RUN.stdout.pipe(process.stdout);
-    janitor(CHILD_RUN, tier);
+    janitor(CHILD_RUN, tier, cwd);
   }, tti * 1000);
 };
 
@@ -98,6 +98,7 @@ export const runNoOps = async (
         : tier === TierLevel.A
         ? TierLevelTTL.A
         : TierLevelTTL.S;
+
     // install and run app, next avail with ttl
     if (request.isNew && nextAvail < Date.now()) {
       nextAvail = Date.now() + N_TTL * 60000;
@@ -112,14 +113,7 @@ export const runNoOps = async (
       await runInfrabot(request.run, request.cwd, request.tti, N_TTL);
       // kill aperature while infrabot is in use
       // TODO: multi-app deployments
-      const KILL_APERTURE = spawn("pkill", ["aperture"]);
-      if (KILL_APERTURE.exitCode) {
-        log(
-          "Aperture killed successfully. Infrabot no longer accepting requests.",
-          LogLevel.DEBUG,
-          true
-        );
-      }
+      spawn("pkill", ["aperture"]);
     }
     log(`next avail: ${nextAvail}`, LogLevel.DEBUG, false);
   }
@@ -128,7 +122,8 @@ export const runNoOps = async (
 /**
  * Return quote for the infrabot
  * If infrabot is free it will assist
- * @param res Response manipulation
+ * @param res - Response manipulation
+ * @param tier - tier level (d,c,b,a,s) 
  */
 export const fetchQuote = async (
   res: any,
@@ -137,7 +132,7 @@ export const fetchQuote = async (
   if (nextAvail === 0) {
     nextAvail = Date.now();
   }
-  // set the expected time to live base on tier
+  // set the expected time to live based on tier
   const Q_TTL: number =
     tier === TierLevel.D
       ? TierLevelTTL.D

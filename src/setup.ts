@@ -13,6 +13,7 @@ import {
 } from "./config";
 
 export let lightning: any;
+export let aperturePath: string;
 
 // grpc configuration
 
@@ -78,6 +79,7 @@ export default async function setup(): Promise<void> {
   }
   // set config as JSON
   const JSON_CONFIG: ConfigFile = JSON.parse(config.toString());
+  aperturePath = JSON_CONFIG.aperturePath;
   // setup with values from config
   await configureLndGrpc(JSON_CONFIG).catch(
     () => new Error("lnd grpc configuration failed")

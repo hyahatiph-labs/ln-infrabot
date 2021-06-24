@@ -7,7 +7,6 @@ export interface ConfigFile {
   lndHost: string;
   tlsPath: string;
   rpcProtoPath: string;
-  invoiceProtoPath: string;
   aperturePath: string;
 }
 
@@ -201,7 +200,6 @@ export const DEFAULT_CONFIG: ConfigFile = {
   lndHost: DEFAULT_LND_HOST,
   tlsPath: DEFAULT_TLS_PATH,
   rpcProtoPath: DEFAULT_RPC_PROTO_PATH,
-  invoiceProtoPath: DEFAULT_INVOICES_PROTO_PATH,
   aperturePath: DEFAULT_APERTURE_PATH
 };
 

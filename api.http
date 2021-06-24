@@ -1,12 +1,13 @@
 GET http://localhost:3637/infrabot/health
 
 ###
-GET http://localhost:3637/infrabot/quote
+GET http://localhost:3637/infrabot/quote/d
 
 ###
 
-POST http://localhost:3637/infrabot/noops
+POST https://localhost:8081/infrabot/noops/d
 Content-Type: application/json
+Authorization: LSAT AgEEbHNhdAJCAAA+9ynEOcScfyAtbBO16qR+U1qtdgGQbIGs6t2oH9TBcb3JEdV60fN/BeXG0i5f60Ac7fNE4OZy6ATvMsAYH8zlAAIVc2VydmljZXM9aW5mcmFib3QtczowAAIYaW5mcmFib3Qtc19jYXBhYmlsaXRpZXM9AAIWdmFsaWRfdW50aWw9MjAyMi0xMi0xMgAABiDVT+rfQA6IcYiSl/2xlo+2NpZnR/vBpuTXEw9M166O/Q==:78f2254c6b559f58a911e36e7dc27db2837f6ed53fb7e298bbaa4f6b1f198897
 
 {
   "app": "node.js",
@@ -16,11 +17,9 @@ Content-Type: application/json
   "install": {"cmd": "npm", "args": ["i"]},
   "tti": 30,
   "compile": null,
-  "run": {"cmd": "node", "args": ["index.js"]},
-  "payment_request": "lnbcrt100n1psvesvzpp5l0kz9exaj7nh6h3kzl5tn84v2d3wc6m8m75x5l8wxq3zqkls636sdq6d9hxvunpvfhhggrfdemx76trv5cqzpgsp5g8ctm0ehhjx4ulqy3q6sqc9q996g22urn82nqxd5r2ytr2mjch4s9qyyssqqn37afuch9lqffj9th2f6laj7r6eg2qj35y0l7qejk48jn4ecfvzytt2nxeh90gqsf5glvenexmgqn264j44u2jjwpeu4r7yeypkzdqpvu8ync",
-  "ttl": "20"
+  "run": {"cmd": "node", "args": ["index.js"]}
 }
 
 ### lsat testing
-GET https://localhost:8081/infrabot/noops/s
-Authorization: LSAT AgEEbHNhdAJCAAA28uj4+48xgphYHKTsQQrXATVeXCSOzQv/hRt62RDLoN8jQIL8FtHq02vIizkBv6sb/JqLDwYQDwa5Rg1wFCvUAAIVc2VydmljZXM9aW5mcmFib3QtczowAAIYaW5mcmFib3Qtc19jYXBhYmlsaXRpZXM9AAIWdmFsaWRfdW50aWw9MjAyNS0xMi0xMgAABiDlR5by4WItaUS0qF8JpWvcMJrQVgtQ6uVO9SFO93asxg==:a78b9ccac2a6a905289569e5734b8f322c0d1304ee037dee9f98893d399919bd
+GET https://localhost:8081/infrabot/quote/s
+Authorization: LSAT AgEEbHNhdAJCAADp3x0U8lUTs4djBxmWnKBm4gLEqWEIj3g3NHPoHquSsY+keXKayeurwRdfapZckdGcR1Bnujk7rjrI22pdbiwVAAIbc2VydmljZXM9aW5mcmFib3QtcXVvdGUtczowAAIeaW5mcmFib3QtcXVvdGUtc19jYXBhYmlsaXRpZXM9AAIWdmFsaWRfdW50aWw9MjAyMi0xMi0xMgAABiDXSh2rcELaSyujh8LV1iYJ12x8i//ruvKrBYkb2a57aQ==:6e96e4e4ce48c972929f7a98600a105282f78a32536222613b6845ed5bf50a9a
