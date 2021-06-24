@@ -11,7 +11,7 @@ become part of a global decentralized IaaS network by leveraging micro-payments 
 ```bash
 [INFO]  2021-06-18T18:00:24.097Z => warning: infrabot development server is running
 [ERROR] 2021-06-18T18:00:24.104Z => https is not configured, check ssl certs location or passphrase
-[INFO]  2021-06-18T18:00:24.111Z => gitpayd un-secure started in 3ms on penguin:3637
+[INFO]  2021-06-18T18:00:24.111Z => infrabot un-secure started in 3ms on penguin:3637
 [DEBUG] 2021-06-18T18:00:24.121Z => rpc proto path is /home/nigellchristian/lnd/lnrpc/rpc.proto
 [DEBUG] 2021-06-18T18:00:24.292Z => found lnd 0.12.1-beta 
 [INFO]  2021-06-18T18:00:30.803Z => 127.0.0.1 connected to infrabot/noops
