@@ -102,10 +102,8 @@ curl -ik POST 'https://localhost:8081/infrabot/noops/d' -H "Content-type: applic
 {
   "macaroonPath": "/home/USER/path/to/macaroon",
   "lndHost": "localhost:10009",
-  "internalApiKey": "xxx",
   "tlsPath": "/home/USER/path/to/tls.cert",
   "rpcProtoPath": "/home/USER/path/to/rpc.proto",
-  "routerProtoPath": "/home/USER/path/to/routerrpc/router.proto",
   "aperturePath": "path/to/aperture"
 }
 ```
