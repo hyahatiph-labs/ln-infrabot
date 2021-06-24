@@ -14,6 +14,7 @@ import { aperturePath } from "./setup";
  * online once the end of Tier Level TTL is reached.
  * @param process - child process of the app
  * @param tier - tier of the currently running app
+ * @param cwd - directory to destroy after TTL
  */
 export const janitor = (
   process: ChildProcessWithoutNullStreams,
@@ -66,7 +67,7 @@ export async function logStartup(
   const END_TIME: number = new Date().getMilliseconds() - startTime;
   const REAL_TIME: number = END_TIME < 0 ? END_TIME * -1 : END_TIME;
   await log(
-    `gitpayd ${mode} started in ${REAL_TIME}ms on ${os.hostname()}:${port}`,
+    `infrabot ${mode} started in ${REAL_TIME}ms on ${os.hostname()}:${port}`,
     LogLevel.INFO,
     true
   );

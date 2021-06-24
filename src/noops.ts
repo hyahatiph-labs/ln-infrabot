@@ -111,7 +111,7 @@ export const runNoOps = async (
       }
       // use tti so that dependencies have time to resolve
       await runInfrabot(request.run, request.cwd, request.tti, N_TTL);
-      // kill aperature while infrabot is in use
+      // kill aperture while infrabot is in use
       // TODO: multi-app deployments
       spawn("pkill", ["aperture"]);
     }
