@@ -1,6 +1,6 @@
 # ln-infrabot
 
-infrabot accepts payments via LSATS to deploy and maintain infrastructure so you don't have to
+infrabot accepts payments via LSATS to deploy and maintain infrastructure
 
 become part of a global decentralized IaaS network by leveraging micro-payments and existing resources
 
