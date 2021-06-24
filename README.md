@@ -59,15 +59,36 @@ api.http               # used with VSCode [humao.rest-client] for local testing
 3. Infrabot runs behind [Aperture](https://github.com/lightninglabs/aperture). Sample config at `./aperture.yml`
 4. Test health check at `http://hostname:8081/infrabot/health` (*port 3636 is default secure port)
 5. Verify configuration files at `~/.ln-infrabot/config.json`
+6. quotes can be fetched via https://localhost:8081/infrabot/quote/{tier} (tier - d,c,b,a,s) at 10 sats
 
 ## Notes
 
 1. This application runs on the latest Node 12.x+
 2. Currently, only battle tested on Fedora 34 Stable
-3. Aperture path is set to $HOME/.go/bin/aperture, udate as needed
+3. Aperture path is set to `$HOME/.go/bin/aperture`, udate as needed
 4. Sample curl for deployment and config file are below
 
 ### Sample curl
+* path param - `d` - tiers are (d,c,b,a,s) with ttl of 60,1440,...etc. minutes
+
+* header - `LSAT` - LSAT required or 402 response
+
+* request body
+    * `app` - type of app, must be in quote 'supported apps'
+
+    * `isNew` - *future use*. Set to true
+
+    * `repo` - repo of the source code 
+
+    * `cwd` - source code root directory
+
+    * `tti` - time-to-install (seconds needed to pull dependencies)
+
+    * `install` - cmd and arguments comma separated
+
+    * `compile` - same as install but for compile commands
+
+    * `run` - same as compile but for running the app
 
 ```bash
 curl -ik POST 'https://localhost:8081/infrabot/noops/d' -H "Content-type: application/json" -H "Authorization: LSAT $LSAT_VALUE" -d '{"app": "node.js","isNew": true,"repo": "https://github.com/reemuru/headerParse.git","cwd": "headerParse","install": {"cmd": "npm", "args": ["i"]},"tti": 30,"compile": null,"run": {"cmd": "node", "args": ["index.js"]}}'
