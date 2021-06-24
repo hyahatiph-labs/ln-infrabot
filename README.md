@@ -67,7 +67,7 @@ api.http               # used with VSCode [humao.rest-client] for local testing
 
 1. This application runs on the latest Node 12.x+
 2. Currently, only battle tested on Fedora 34 Stable
-3. Aperture path is set to `$HOME/.go/bin/aperture`, udate as needed
+3. Aperture path is set to `$HOME/.go/bin/aperture`, update as needed
 4. Sample curl for deployment and config file are below
 
 ### Sample curl
