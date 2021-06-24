@@ -48,7 +48,7 @@ export const SSL_SCHEMA: any = {
 };
 
 /**
- * User input for the gitpayd-cli
+ * User input for the infrabot-cli
  */
 const ARGS = yargs
   .option("key-path", {
