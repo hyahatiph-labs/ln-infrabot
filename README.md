@@ -2,7 +2,7 @@
 [![CodeQL](https://github.com/hyahatiph-labs/ln-infrabot/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/hyahatiph-labs/ln-infrabot/actions/workflows/codeql-analysis.yml)
 # ln-infrabot
 
-infrabot accepts payments via LSATS to deploy and maintain infrastructure
+infrabot accepts payments via [LSATs](https://lsat.tech/) to deploy and maintain infrastructure
 
 become part of a global decentralized IaaS network by leveraging micro-payments and existing resources
 
