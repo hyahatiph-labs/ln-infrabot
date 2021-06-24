@@ -69,7 +69,10 @@ api.http               # used with VSCode [humao.rest-client] for local testing
 3. Aperture path is set to `$HOME/.go/bin/aperture`, update as needed
 4. Sample curl for deployment and config file are below
 
-### Sample curl
+### Sample curl 
+
+(will run node.js microservice at localhost:5000/api)
+
 * path param - `d` - tiers are (d,c,b,a,s) with ttl of 60,1440,...etc. minutes
 
 * header - `LSAT` - LSAT required or 402 response
