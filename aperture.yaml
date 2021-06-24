@@ -131,7 +131,7 @@ services:
     price: 10
 
   # D-tier config
-  - name: "infrabot-s"
+  - name: "infrabot-d"
     address: "localhost:3637"
     pathregexp: '^*/noops/d$'
     protocol: http

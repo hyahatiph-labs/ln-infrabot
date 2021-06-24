@@ -1,25 +1,11 @@
-GET http://localhost:3637/infrabot/health
+### POST with request body not working with aperture from here, use curl in terminal!
 
-###
-GET http://localhost:3637/infrabot/quote/d
+# POST https://localhost:8081/infrabot/noops/d
+# Content-Type: application/json
+# Authorization: LSAT 
 
-###
-
-POST https://localhost:8081/infrabot/noops/d
-Content-Type: application/json
-Authorization: LSAT AgEEbHNhdAJCAAA+9ynEOcScfyAtbBO16qR+U1qtdgGQbIGs6t2oH9TBcb3JEdV60fN/BeXG0i5f60Ac7fNE4OZy6ATvMsAYH8zlAAIVc2VydmljZXM9aW5mcmFib3QtczowAAIYaW5mcmFib3Qtc19jYXBhYmlsaXRpZXM9AAIWdmFsaWRfdW50aWw9MjAyMi0xMi0xMgAABiDVT+rfQA6IcYiSl/2xlo+2NpZnR/vBpuTXEw9M166O/Q==:78f2254c6b559f58a911e36e7dc27db2837f6ed53fb7e298bbaa4f6b1f198897
-
-{
-  "app": "node.js",
-  "isNew": true,
-  "repo": "https://github.com/reemuru/headerParse.git",
-  "cwd": "headerParse",
-  "install": {"cmd": "npm", "args": ["i"]},
-  "tti": 30,
-  "compile": null,
-  "run": {"cmd": "node", "args": ["index.js"]}
-}
+# {"app": "node.js","isNew": true,"repo": "https://github.com/reemuru/headerParse.git","cwd": "headerParse","install": {"cmd": "npm", "args": ["i"]},"tti": 30,"compile": null,"run": {"cmd": "node", "args": ["index.js"]}}
 
 ### lsat testing
-GET https://localhost:8081/infrabot/quote/s
-Authorization: LSAT AgEEbHNhdAJCAADp3x0U8lUTs4djBxmWnKBm4gLEqWEIj3g3NHPoHquSsY+keXKayeurwRdfapZckdGcR1Bnujk7rjrI22pdbiwVAAIbc2VydmljZXM9aW5mcmFib3QtcXVvdGUtczowAAIeaW5mcmFib3QtcXVvdGUtc19jYXBhYmlsaXRpZXM9AAIWdmFsaWRfdW50aWw9MjAyMi0xMi0xMgAABiDXSh2rcELaSyujh8LV1iYJ12x8i//ruvKrBYkb2a57aQ==:6e96e4e4ce48c972929f7a98600a105282f78a32536222613b6845ed5bf50a9a
+GET https://localhost:8081/infrabot/health
+Authorization: LSAT AgEEbHNhdAJCAAD7WqksDAya2Oeod5Q4CThDqb5DebwimftMrcNd3su8ZFsHy6dMkUxWFLCNODu1JlxykHumrC0WD2w/IIezHohIAAIbc2VydmljZXM9aW5mcmFib3QtcXVvdGUtZDowAAIeaW5mcmFib3QtcXVvdGUtZF9jYXBhYmlsaXRpZXM9AAIWdmFsaWRfdW50aWw9MjAyMi0xMi0xMgAABiBiCmtE3RwP5+xboaHZoaT5wn17rjIH8zatQH4/ah8/XA==:07cad0991f12040d1b431207b7675e96d2eb0f226dc39653c636c9a3a883a64a

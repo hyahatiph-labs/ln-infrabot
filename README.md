@@ -57,15 +57,23 @@ api.http               # used with VSCode [humao.rest-client] for local testing
 1. Set environment variable `export INFRABOT_ENV=DEV` for development if needed
 2. Run `node dist/src/infrabot.js` to run server *--help for help
 3. Infrabot runs behind [Aperture](https://github.com/lightninglabs/aperture). Sample config at `./aperture.yml`
-3. Test health check at `http://hostname:3637/infrabot/health` (*port 3636 is default secure port)
-4. Verify configuration files at `~/.ln-infrabot/config.json`
-
+4. Test health check at `http://hostname:8081/infrabot/health` (*port 3636 is default secure port)
+5. Verify configuration files at `~/.ln-infrabot/config.json`
 
 ## Notes
 
 1. This application runs on the latest Node 12.x+
 2. Currently, only battle tested on Fedora 34 Stable
 3. Aperture path is set to $HOME/.go/bin/aperture, udate as needed
+4. Sample curl for deployment and config file are below
+
+### Sample curl
+
+```bash
+curl -ik POST 'https://localhost:8081/infrabot/noops/d' -H "Content-type: application/json" -H "Authorization: LSAT $LSAT_VALUE" -d '{"app": "node.js","isNew": true,"repo": "https://github.com/reemuru/headerParse.git","cwd": "headerParse","install": {"cmd": "npm", "args": ["i"]},"tti": 30,"compile": null,"run": {"cmd": "node", "args": ["index.js"]}}'
+```
+
+### Sample .ln-infrabot/config.json
 
 ```json 
 {
@@ -78,8 +86,6 @@ api.http               # used with VSCode [humao.rest-client] for local testing
   "aperturePath": "path/to/aperture"
 }
 ```
-
-## Installation
 
 ## Releasing
 
