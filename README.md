@@ -59,7 +59,7 @@ api.http               # used with VSCode [humao.rest-client] for local testing
 1. Set environment variable `export INFRABOT_ENV=DEV` for development if needed
 2. Run `node dist/src/infrabot.js` to run server *--help for help
 3. Infrabot runs behind [Aperture](https://github.com/lightninglabs/aperture). Sample config at `./aperture.yml`
-4. Test health check at `http://hostname:8081/infrabot/health` (*port 3636 is default secure port)
+4. Test health check at `https://hostname:8081/infrabot/health` (*port 3636 is default secure port)
 5. Verify configuration files at `~/.ln-infrabot/config.json`
 6. quotes can be fetched via https://localhost:8081/infrabot/quote/{tier} (tier - d,c,b,a,s) at 10 sats
 
