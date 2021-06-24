@@ -1,3 +1,4 @@
+[![CodeQL](https://github.com/hyahatiph-labs/ln-infrabot/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/hyahatiph-labs/ln-infrabot/actions/workflows/codeql-analysis.yml)
 # ln-infrabot
 
 infrabot accepts payments via LSATS to deploy and maintain infrastructure
