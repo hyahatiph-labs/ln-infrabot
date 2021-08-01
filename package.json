@@ -1,6 +1,6 @@
 {
   "name": "ln-infrabot",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "<p>infrabot accepts streaming payments to deploy and maintain infrastructure so you don't have to <p>become part of a global decentralized IaaS network by leveraging micropayments and existing resources",
   "main": "index.js",
   "directories": {
