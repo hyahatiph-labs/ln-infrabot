@@ -5,6 +5,8 @@ name: Build
 # Controls when the action will run. 
 on:
   # Triggers the workflow on pull request events but only for the dev branch
+  push:
+    branches: [ dev ]
   pull_request:
     branches: [ dev ]
     types: [ opened, edited, synchronize ]
