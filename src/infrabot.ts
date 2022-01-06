@@ -4,6 +4,7 @@ import log, { LogLevel } from "./logging";
 import https from "https";
 import http from "http";
 import fs from "fs";
+import helmet from "helmet";
 import {
   CONFIG_PATH,
   InfrabotConfig,
@@ -29,6 +30,19 @@ let isConfigured: boolean;
 
 const APP = express();
 APP.use(express.json());
+APP.disable('x-powered-by');
+// add helmet for hardening
+APP.use(helmet({
+  frameguard: {
+    action: 'deny'
+  },
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+    }
+  },
+  dnsPrefetchControl: false
+}));
 const START_TIME: number = new Date().getMilliseconds();
 
 // health check for infrabot
